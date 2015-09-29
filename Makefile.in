@@ -1,0 +1,290 @@
+# Makefile for Ivy, based on the Deputy Makefiles.
+# Jeremy Condit <jcondit@cs.berkeley.edu>
+# David Gay <dgay42@gmail.com>
+#
+#
+# Please edit Makefile.in, not Makefile!
+
+ifndef ARCHOS
+  ARCHOS = @ARCHOS@
+endif
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+libdir = @libdir@
+pkglibdir = $(libdir)/ivy
+
+IVY_VERSION = @IVY_VERSION@
+
+ifdef RELEASE
+  UNSAFE := 1
+endif
+
+ifndef IVYHOME
+  IVYHOME = @IVYHOME@
+endif
+
+
+SUBDIRS = heapsafe-lib sharC-lib deputy-lib
+
+# It is important to build without NATIVECAML first,to generate the 
+# proper dependencies
+all: patch
+	$(MAKE) -C cil cillib NATIVECAML=
+ifndef BYTECODE
+	$(MAKE) -C cil cillib NATIVECAML=1
+endif
+	$(MAKE) ivy $(SUBDIRS)
+ifndef BYTECODE
+	$(MAKE) ivy NATIVECAML=1
+# For some strange reason the bytecode cil library is remade, which triggers
+# a remake of the ivy.byte.exe, but not the .asm.exe. This means that 
+# we keep using the bytecode version of ivy. We force the .asm version to 
+# be the most recent one
+	touch obj/$(ARCHOS)/ivy.asm.exe
+endif
+#	$(MAKE) -f src/instrumenter/Makefile
+	$(MAKE) $(BINDISTRIB_MAN)
+
+# Look out for outdated Makefile; if it's out of date, this will automatically
+# re-run ./config.status, then re-exec make with the same arguments.
+Makefile: config.status Makefile.in
+	@echo "Rebuilding the Makefile"
+	./$<
+
+config.status: configure
+	./$@ --recheck
+
+configure: configure.ac
+	autoconf
+
+
+#
+# Ivy executable
+#
+
+OBJDIR       = obj/$(ARCHOS)
+DEPENDDIR    = obj/.depend
+
+SOURCEDIRS   = src src/instrumenter src/heapsafe src/sharC src/deputy \
+               src/deputy/infer src/deputy/optimizer \
+               src/deputy/optimizer/xhtml \
+               src/deputy/optimizer/ptranal/cilPtrAnal \
+               src/deputy/optimizer/oct/mineOct \
+               src/deputy/optimizer/modref/zraModRef \
+               src/deputy/optimizer/solver/nullSolver \
+	       src/cutils
+
+MODULES = realpath ivyoptions rcutils dutil sfunctions sutil ivyutil \
+	  dattrs ivystaticrename sattrconv \
+          dpatch ivyglobserver ivyglobclient ivymerger ivypreprocess
+
+MODULES += dcanonexp dcheckdef dsolverfront \
+           solverInterface ptrnode unionfind dvararg markptr \
+           type solver inferkinds \
+           doptimutil dprecfinder dptranal dmodref \
+           dflowinsens dflowsens dfwdsubst ddupcelim \
+           dloopoptim dcheckstrengthen dcheckhoister dfailfinder\
+           oct doctanalysis dnonnullfinder xML xHTML dfdatbrowser\
+           doptimmain dglobinit dlocals dpoly dcheck \
+           dtaint dinstrumenter dtinyos dinfer deputy
+
+MODULES += rcinit rclocals rcopt rc crc rcprint heapsafe
+
+MODULES += sdynamic ssharinganalysis \
+           stypefixer stypechecker \
+           sreadonly slockcheck sdynbar soptim\
+           sharC
+
+MODULES += main
+
+COMPILEFLAGS = -w x -I cil/obj/$(ARCHOS)
+LINKFLAGS    = -I cil/obj/$(ARCHOS)
+
+# For building interface to octagon library
+CAML_CFLAGS += -ccopt -Isrc/deputy/optimizer/oct/mineOct
+MINE_OCT_CMODULES = oct_ocaml oct_sem oct_util
+
+include cil/ocamlutil/Makefile.ocaml
+
+PROJECT_EXECUTABLE = $(OBJDIR)/ivy$(EXE)
+PROJECT_MODULES    = $(MODULES)
+
+
+PROJECT_CMODULES = $(MINE_OCT_CMODULES) ocaml_realpath
+EXT_PROJ_CMODS =
+
+PROJECT_LIBS       = unix str cil nums
+
+# find the cil library
+vpath %.$(CMXA) cil/obj/$(ARCHOS)
+
+# Make sure that the Ivy files depend on the CIL library
+# Choose just one file on which everybody depends
+$(OBJDIR)/ivyoptions.$(CMO): cil.$(CMXA)
+$(OBJDIR)/markptr.cmi $(OBJDIR)/ptrnode.cmi $(OBJDIR)/inferkinds.cmi: \
+        cil/obj/$(ARCHOS)/cil.cmi
+
+$(PROJECT_EXECUTABLE) : $(PROJECT_MODULES:%=$(OBJDIR)/%.$(CMO)) \
+                        $(PROJECT_CMODULES:%=$(OBJDIR)/%.$(CMC)) \
+                        cil.$(CMXA)
+	@$(NARRATIVE) "Linking $(COMPILETOWHAT) $@ $(LINKMSG)"
+	$(AT)$(CAMLLINK) -verbose -o $@ \
+                    $(PROJECT_LIBS:%=%.$(CMXA)) \
+	            $(EXT_PROJ_MODS:%=%.$(CMO)) \
+                    $(PROJECT_MODULES:%=$(OBJDIR)/%.$(CMO)) \
+                    $(EXT_PROJ_CMODS:%=%.$(OBJ)) \
+                    $(PROJECT_CMODULES:%=$(OBJDIR)/%.$(CMC)) \
+                    $(ENDLINKFLAGS)
+
+ivy: $(PROJECT_EXECUTABLE) 
+
+#
+# Patched libc includes
+#
+
+include cil/Makefile.gcc
+
+PATCH = $(IVYHOME)/deputy-include/libc_patch.h
+SHARCPATCH = $(IVYHOME)/sharC-include/sharc_libc_patch.h
+PATCH_PP = $(PATCH:.h=.i)
+SHARCPATCH_PP = $(SHARCPATCH:.h=.i)
+
+$(PATCH_PP): $(PATCH)
+	$(CC) -E -include $(IVYHOME)/deputy-include/deputy/annots.h -o $@ $^
+
+$(SHARCPATCH_PP) : $(SHARCPATCH)
+	$(CC) -E -include $(IVYHOME)/sharC-include/sharc.h -o $@ $^
+
+.PHONY: patch
+patch: $(PATCH_PP) $(SHARCPATCH_PP)
+
+#
+# Subdirectories
+#
+
+.PHONY: $(SUBDIRS)
+
+$(SUBDIRS):
+	$(MAKE) -C $@
+
+#
+# Testing and cleanup
+#
+
+quicktest: 
+	cd test/small && make runall/deref1 runall/infer1 && \
+	  echo && echo "*** Quicktest was successful" && echo
+
+clean:
+	rm -f $(OBJDIR)/*.* $(DEPENDDIR)/*.* $(PATCH_PP) $(SHARCPATCH_PP)
+	for i in $(SUBDIRS) cil; do make -C $$i clean; done
+
+libclean:
+	for i in heapsafe-lib sharC-lib deputy-lib; do make -C $$i clean; done
+
+distclean: cleancaml clean
+	cd cil && make clean
+	rm -f config.status config.log Makefile deputy-lib/Makefile \
+	      heapsafe-lib/Makefile sharC-lib/Makefile \
+	      test/Makefile test/Makefile.ivy
+
+
+#
+# Distribution
+#
+
+# Make a distribution that excludes certain files.  We exclude the
+# toplevel Makefile from here, since otherwise it's difficult to avoid
+# excluding *all* Makefiles, which would be bad.
+dist: distclean
+	rm -rf ivy-@IVY_VERSION@ ivy-examples-@IVY_VERSION@
+	tar cf - -X .distexclude . | (mkdir ivy-@IVY_VERSION@; cd ivy-@IVY_VERSION@; tar xf -)
+	tar czf ivy-macosx-@IVY_VERSION@.tar.gz -X .distexclude-macosx ivy-@IVY_VERSION@
+	tar czf ivy-linux-@IVY_VERSION@.tar.gz -X .distexclude-linux ivy-@IVY_VERSION@
+	(cd ../ivytests; tar cf - -X .distexclude -T .dist) | (mkdir ivy-examples-@IVY_VERSION@; cd ivy-examples-@IVY_VERSION@; tar xf -)
+	tar czf ivy-examples-@IVY_VERSION@.tar.gz ivy-examples-@IVY_VERSION@
+
+#
+# Documentation
+#
+#
+
+doc/%.1.gz: doc/%.1
+	gzip -c $< > $@
+
+#
+# Installation
+#
+
+INSTALL = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+
+BIN_FILES = bin/ivycc 			\
+	    bin/deputy                  \
+	    $(OBJDIR)/ivy.asm.exe 	\
+	    $(OBJDIR)/ivy.byte.exe
+
+LIB_FILES = lib/Ivy.pm			\
+	    cil/bin/CilConfig.pm 	\
+	    cil/lib/Cilly.pm		\
+	    cil/lib/KeptFile.pm		\
+	    cil/lib/TempFile.pm		\
+	    cil/lib/OutputFile.pm
+
+INCLUDE_FILES = heapsafe-include/hslib.h		 \
+	        heapsafe-include/heapsafe.h 		 \
+		heapsafe-include/$(shell uname)/setjmp.h \
+		deputy-include/libc_patch.i \
+		sharC-include/sharc_libc_patch.i
+
+IHEAPSAFE_FILES = heapsafe-include/heapsafe/rcops.h \
+		  heapsafe-include/heapsafe/rcops_debug.h
+
+IDEPUTY_FILES = deputy-include/deputy/annots.h \
+		deputy-include/deputy/checks.h
+
+ISHARC_FILES = sharC-include/sharCops.h sharC-include/sharc.h
+
+ALL_FILES = $(BIN_FILES) $(LIB_FILES) $(INCLUDE_FILES) $(IHEAPSAFE_FILES) \
+	    $(IDEPUTY_FILES) $(ISHARC_FILES)
+
+install-base: $(ALL_FILES)
+	$(INSTALL) -d $(DESTDIR)$(prefix)/bin
+	$(INSTALL) -d $(DESTDIR)$(pkglibdir)
+	$(INSTALL) -d $(DESTDIR)$(pkglibdir)/bin
+	$(INSTALL) -d $(DESTDIR)$(pkglibdir)/lib
+	$(INSTALL) -d $(DESTDIR)$(pkglibdir)/include/heapsafe
+	$(INSTALL) -d $(DESTDIR)$(pkglibdir)/include/deputy
+	$(INSTALL) -d $(DESTDIR)$(pkglibdir)/include/sharc
+	$(INSTALL_PROGRAM) $(BIN_FILES) $(DESTDIR)$(pkglibdir)/bin
+	touch $(DESTDIR)$(pkglibdir)/bin/ivy.asm.exe
+	$(INSTALL_DATA) $(LIB_FILES) $(DESTDIR)$(pkglibdir)/lib
+	$(INSTALL_DATA) $(INCLUDE_FILES) $(DESTDIR)$(pkglibdir)/include
+	$(INSTALL_DATA) $(IHEAPSAFE_FILES) \
+			$(DESTDIR)$(pkglibdir)/include/heapsafe
+	$(INSTALL_DATA) $(IDEPUTY_FILES) \
+			$(DESTDIR)$(pkglibdir)/include/deputy
+	$(INSTALL_DATA) $(ISHARC_FILES) \
+			$(DESTDIR)$(pkglibdir)/include/sharc
+	rm -f $(DESTDIR)$(prefix)/bin/ivycc
+	rm -f $(DESTDIR)$(prefix)/bin/deputy
+	ln -s ../lib/ivy/bin/ivycc $(DESTDIR)$(prefix)/bin/ivycc
+	ln -s ../lib/ivy/bin/deputy $(DESTDIR)$(prefix)/bin/deputy
+	for i in $(SUBDIRS); do \
+	  make -C $$i install; \
+	done
+
+# We handle the man page separately, since Debian has its own utility
+# for installing man pages, whereas RPM wants us to do it.
+
+BINDISTRIB_MAN = doc/deputy.1.gz doc/ivycc.1.gz
+
+install-man: $(BINDISTRIB_MAN)
+	$(INSTALL) -d $(DESTDIR)$(prefix)/man/man1
+	$(INSTALL_DATA) $(BINDISTRIB_MAN) $(DESTDIR)$(prefix)/man/man1
+
+# And now for normal users who want everything installed...
+
+install: install-base install-man

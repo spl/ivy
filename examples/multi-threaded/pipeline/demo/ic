@@ -1,0 +1,7 @@
+killall ivy.asm.exe 2>/dev/null
+killall ivy.byte.exe 2>/dev/null
+rm -rf .ppatches
+b=`basename $1 .c`
+CMD="ivycc -Wall --sharc --heapsafe --sc-infer-sharing=$PWD -o $b $1"
+echo $CMD
+$CMD

@@ -1,0 +1,316 @@
+<html>
+
+<head>
+<title>Deputy Quick Reference</title>
+<link rel="stylesheet" type="text/css" href="deputy.css"/>
+</head>
+
+<body>
+<div id="frame">
+
+<h2>Deputy Quick Reference</h2>
+
+<hr/>
+
+<h3>Getting Started</h3>
+
+<p>Run <tt>ivycc --deputy</tt> on a C file in place of <tt>gcc</tt>.  (In many
+cases, this is as simple as changing <tt>CC</tt> in your makefile.)  You
+will probably see a number of type errors, beginning with a series of
+warnings that suggest annotations.  You can fix these errors by inserting
+annotations listed below.  Hairier parts of the code can be skipped using
+the "trusted" annotations below.  Once your file compiles, you'll need to
+use <tt>deputy</tt> for the linker as well so that Deputy can link in its
+(small) runtime library.</p>
+
+<p>Now run and test your program.  You will probably see some run-time
+errors due to insufficient or incorrect annotations.  Fix these errors and
+you're good to go!</p>
+
+<hr/>
+
+<h3>Pointer and Array Bounds</h3>
+
+<p>Pointer annotations are placed after the <tt>*</tt> in the pointer
+type.  Array annotations are placed immediately before the name of the
+array, using parentheses.  For example, the <tt>COUNT(42)</tt> annotation
+can be placed as follows:</p>
+
+<div class="code">int * COUNT(42) ptr;
+int (COUNT(42) array)[]:
+</div>
+
+<p>The basic Deputy bounds annotations are given in the following table.
+The type checker assumes that every pointer and array in the program is
+annotated with one of these annotations.  Deputy will provide a suitable
+default for each unannotated pointer.</p>
+
+<table>
+
+<tr>
+<td width="100"><tt>BOUND(b,&nbsp;e)</tt><br/>
+<tt>BND(b,&nbsp;e)</tt></td>
+<td>The pointer is either null or it points to an array of objects of the
+base type with bounds given by the local expressions <tt>b</tt> and
+<tt>e</tt>.  This pointer must be aligned with respect to both <tt>b</tt>
+and <tt>e</tt>.  The keyword <tt>__this</tt> refers to the variable or
+expression to which this type is attached.  To use automatic bounds,
+specify <tt>__auto</tt> in place of <tt>b</tt> and/or <tt>e</tt>.</td>
+</tr>
+
+<tr>
+<td><tt>COUNT(n)</tt>
+<tt>CT(n)</tt></td>
+<td>The pointer is either null or it points to an array of <tt>n</tt>
+objects of the base type.  Equivalent to <tt>BOUND(__this, __this +
+n)</tt>.  This annotation is the default for arrays with declared size
+<tt>n</tt>.</td>
+</tr>
+
+<tr>
+<td><tt>SAFE</tt></td>
+<td>The pointer is either null or it bounds to a single object of the base
+type.  Equivalent to <tt>COUNT(1)</tt> and <tt>BOUND(__this, __this +
+1)</tt>.  This annotation is the default for global variables, structure
+fields, and function arguments and return values.</td>
+</tr>
+
+<tr>
+<td><tt>SNT</tt></td>
+<td>This pointer is used only for comparison and never for dereference.
+Mostly equivalent to <tt>COUNT(0)</tt> and <tt>BOUND(__this, __this)</tt>,
+but currently carries an extra attribute that allows it to be incremented
+and decremented freely.</td>
+</tr>
+
+<tr>
+<td><tt>SEQ</tt></td>
+<td>A shorthand for <tt>BOUND(__auto, __auto)</tt>.  Deputy will insert
+automatic bounds variables for both bounds.  Note that this annotation
+must be used with care on any externally-visible data!  This annotation is
+the default for local variables.</td>
+</tr>
+
+<tr>
+<td><tt>FSEQ</tt></td>
+<td>A shorthand for <tt>BOUND(__this, __auto)</tt>.  Deputy will insert
+an automatic bounds variable for the upper bound, and the lower bound is
+assumed to be the pointer itself.  As with <tt>SEQ</tt>, this annotation
+must be used with care on any externally-visible data!</td>
+</tr>
+
+</table>
+
+<p>You may also indicate whether a pointer is non-null with the following
+annotations:</p>
+
+<table>
+
+<tr>
+<td width="100"><tt>NONNULL</tt></td>
+<td>Indicates that a pointer must be non-null.</td>
+</tr>
+
+<tr>
+<td><tt>OPT</tt></td>
+<td>Indicates that a pointer may be null.  This annotation is the default
+on all pointers.</td>
+</tr>
+
+</table>
+
+<hr/>
+
+<h3>Null-Terminated Pointers and Arrays</h3>
+
+<p>In addition to the bounds annotations provided above, you may also
+indicate that a pointer or array is null-terminated by using one of the
+following annotations:</p>
+
+<table>
+
+<tr>
+<td width="100"><tt>NT</tt></td>
+<td>Indicates that the upper bound of the pointer (as given by
+<tt>BOUND</tt> or one of its relatives) is the beginning of a
+null-terminated sequence of elements.</td>
+</tr>
+
+<tr>
+<td><tt>NTS</tt></td>
+<td>A shorthand for <tt>NT COUNT(0)</tt>--think "null-terminated string".
+This annotation is often used for <tt>char *</tt> pointers that represent
+null-terminated strings.  Note that because it includes a <tt>COUNT</tt>
+annotation, it is provided in place of (rather than in addition to) the
+bounds annotations in the previous section.</td>
+</tr>
+
+</table>
+
+<p>There are two operations that allow you to convert between
+null-terminated and regular pointers:</p>
+
+<table>
+
+<tr>
+<td width="100"><tt>NTDROP(e)</tt></td>
+<td>Converts a null-terminated pointer <tt>e</tt> with type <tt>NT BOUND(b,
+e)</tt> into a standard pointer with bounds <tt>BOUND(b, e)</tt>.  Because
+the null terminator lies outside of the specified bounds, this operation
+is safe; however, the null element (and any other elements outside the
+specified bounds) may no longer be accessible.</td>
+</tr>
+
+<tr>
+<td><tt>NTEXPAND(e)</tt></td>
+<td>Expands the upper bound of <tt>e</tt> up to the null element.  For
+example, if <tt>e</tt> has type <tt>NT COUNT(0)</tt> but points to a
+string with 5 characters (plus a null character), then
+<tt>NTEXPAND(e)</tt> will have type <tt>NT COUNT(5)</tt>.  This operation
+is often used immediately before an <tt>NTDROP</tt> in order to preserve
+access to all elements except for the null terminator itself.</td>
+</tr>
+
+</table>
+
+<hr/>
+
+<h3>Union Annotations</h3>
+
+<p>Unions are annotated by indicating when each field is active.  For
+example:</p>
+
+<div class="code">struct foo {
+    int tag;
+    union foo {
+        int *p  WHEN(tag == 0);
+        int n   WHEN(tag == 1);
+    } u;
+};
+</div>
+
+<p>Note that the annotation is placed after the name of each field, not on
+the type of each field.  The annotation is defined as follows:</p>
+
+<table>
+
+<tr>
+<td width="100"><tt>WHEN(e)</tt></td>
+<td>Indicates that the associated union field is selected when the local
+expression <tt>e</tt> evaluates to a non-zero value.  The expression
+<tt>e</tt> is local with respect to the union itself, so it can refer to
+other names at the same level as the union.  At most one field may be
+selected at any given time.</td>
+</tr>
+
+</table>
+
+<hr/>
+
+<h3>Special Function Annotations</h3>
+
+<p>Deputy provides annotations that identify several common C functions
+that require special treatment.  These annotations are placed on the
+function type by writing them before the name of the function, in
+parentheses.  For example:</p>
+
+<p><tt>void * (DALLOC(sz) malloc)(size_t sz);</tt></p>
+
+<p>These annotations are as follows:</p>
+
+<table>
+
+<tr>
+<td width="100"><tt>DALLOC(e)</tt></td>
+<td>This annotation indicates a function that acts as an allocator.  The
+expression <tt>e</tt> indicates the size of the allocated block (in bytes)
+in terms of the function's formal parameters.  The type of the allocation
+is determined by the pointer to which the result of this call is assigned,
+and the size is used to check (or set, in the case of automatic bounds)
+the bounds of the resulting pointer.</td>
+</tr>
+
+<tr>
+<td width="100"><tt>DFREE(p)</tt></td>
+<td>This annotation indicates a function that frees memory.  The argument
+<tt>p</tt> is the name of the formal parameter for the pointer being
+freed.</td>
+</tr>
+
+<tr>
+<td width="100"><tt>DREALLOC(p,&nbsp;e)</tt></td>
+<td>This annotation indicates a function that acts as a reallocator; the
+arguments <tt>p</tt> and <tt>e</tt> function as specified in the previous
+two annotations.  Note that newly-allocated portions of the array are
+<em>not</em> automatically zeroed by Deputy.</td>
+</tr>
+
+<tr>
+<td>
+<tt>DMEMCPY(x,&nbsp;y,&nbsp;z)</tt><br/>
+<tt>DMEMSET(x,&nbsp;y,&nbsp;z)</tt><br/>
+<tt>DMEMCMP(x,&nbsp;y,&nbsp;z)</tt>
+</td>
+<td>These annotations specify that the function behaves like
+<tt>memcpy</tt>, <tt>memset</tt>, or <tt>memcmp</tt>.  The three arguments
+<tt>x</tt>, <tt>y</tt>, and <tt>z</tt> are meant to indicate the indices
+of the arguments that behave like the corresponding arguments for the
+original function; however, they are ignored by the current
+implementation.  When Deputy sees a call to a function with one of these
+annotations, it verifies the bounds of the pointers passed to these
+functions, and when data is being written, it verifies that the data
+written has the correct type.  In the case of <tt>memset</tt>, we allow
+arrays containing pointers to be initialized to zero (assuming, of course,
+that those pointers are not non-null).</td>
+</tr>
+
+</table>
+
+<hr/>
+
+<h3>Trusted Annotations</h3>
+
+<p>Deputy allows the user to trust code in cases where Deputy annotations
+cannot easily be provided.  There are several ways to indicate trusted
+code:</p>
+
+<p>First, you may specify trusted blocks of code.  If you place
+<tt>TRUSTEDBLOCK</tt> after the opening brace of a block, Deputy will not
+attempt to check any code contained therein.  If this block reads
+variables with automatic bounds, Deputy will adjust the code as necessary
+to allow the read to occur.  However, writes to variables with automatic
+bounds are not allowed.</p>
+
+<p>Second, you may use the <tt>TRUSTED</tt> annotation, which can appear
+in three places:</p>
+
+<ul>
+
+<li>On a pointer, the <tt>TRUSTED</tt> annotation causes Deputy to trust
+any casts into or out of that pointer as well as any arithmetic operations
+on that pointer.  When casting from a trusted pointer to a non-trusted
+pointer, the bounds on the non-trusted pointer must be given explicitly.
+(Automatic bounds can still be used as long as they are explicitly
+requested with an annotation such as <tt>SEQ</tt>.)</li>
+
+<li>On a union, the <tt>TRUSTED</tt> annotation causes Deputy to suppress
+any tag checks assocated with that union.  This annotation can be placed
+after the <tt>union</tt> keyword or after the closing brace of the
+union.</li>
+
+<li>On a function, the <tt>TRUSTED</tt> annotation tells Deputy not to
+process the local variables or the function body.  As with
+<tt>TRUSTEDBLOCK</tt>, Deputy will adjust reads of variables with
+automatic bounds appropriately but will disallow writes to such
+variables.</li>
+
+</ul>
+
+<p>For convenience, you can use the macro <tt>TC(e)</tt> to convert a
+pointer expression <tt>e</tt> to a trusted version of the same pointer.
+This macro is very useful for performing trusted casts from one pointer
+type to another.</p>
+
+</div>
+</body>
+</html>

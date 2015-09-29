@@ -1,0 +1,8 @@
+5
+x y z t u
+
+3
+x + y + z + t + u ;
+x y + y z + z t + t u + u x ;
+x y z + y z t + z t u + t u x + u x y ;
+

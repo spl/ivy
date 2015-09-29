@@ -1,0 +1,14 @@
+10
+	y10 y9 y8 y7 y6 y5 y4 y3 y2 y1
+
+5
+- y5 y6 + y3 y6 + y2 y5 - y3 y4;
+y2 y8 - y1 y8 - y3 y7 + y1 y3;
+y4 y8 - y5 y7;
+- y2 y10 + y3 y9;
+y4 y10 - y1 y10 - y5 y9 + y1 y5;
+
+/*
+	y1 y2 y3 y4 y5 y6 y7 y8 y9 y10
+*/
+

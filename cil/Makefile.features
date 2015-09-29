@@ -1,0 +1,6 @@
+# -*- Mode: makefile -*-
+# This file was generated automatically by ./configure.in
+# We will not need this once configure supports multiline variables
+export USE_ZRAPP=yes
+TYPE_SIZE_T=""
+TYPE_WCHAR_T=""

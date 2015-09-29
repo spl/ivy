@@ -1,0 +1,2346 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.4: http://docutils.sourceforge.net/" />
+<title>HeapSafe</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger
+:Contact: goodger@users.sourceforge.net
+:Date: $Date: 2005-12-18 01:56:14 +0100 (Sun, 18 Dec 2005) $
+:Revision: $Revision: 4224 $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin-left: 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left {
+  clear: left }
+
+img.align-right {
+  clear: right }
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font-family: serif ;
+  font-size: 100% }
+
+pre.literal-block, pre.doctest-block {
+  margin-left: 2em ;
+  margin-right: 2em ;
+  background-color: #eeeeee }
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+tt.docutils {
+  background-color: #eeeeee }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="heapsafe">
+<h1 class="title">HeapSafe</h1>
+<p>Memory management bugs, in particular incorrect uses of <tt class="docutils literal"><span class="pre">free</span></tt>, are
+notoriously hard to debug because the symptoms of the problem show up
+in a place far disconnected from where the bug actually occurred. For
+instance, an incorrect <tt class="docutils literal"><span class="pre">free</span></tt> can lead to corruption of a completely
+unrelated object allocated later.</p>
+<p>Debugging allocators such as <a class="reference" href="http://dmalloc.com/">Dmalloc</a>, and tools such as <a class="reference" href="http://valgrind.org/">Valgrind</a>
+and <a class="reference" href="http://www-306.ibm.com/software/awdtools/purify/">Purify</a> provide some help, by detecting when freed objects are
+accessed (Valgrind, Purify) or modified (Dmalloc). However, these
+tools cause large slowdowns, making them unsuitable for anything but
+debugging, and they still only report problems after the fact (at
+the bad access) rather than at the bad free itself.</p>
+<p>HeapSafe is the part of <a class="reference" href="http://ivy.cs.berkeley.edu/">Ivy</a> that directly checks that a program uses
+<tt class="docutils literal"><span class="pre">free</span></tt> safely, with time and space overheads low enough (normally
+below 30% for single-threaded code) that it can be used all the
+time. Furthermore, when HeapSafe does detect an invalid <tt class="docutils literal"><span class="pre">free</span></tt>, it
+can simply leak the object (and log the problem), preventing the
+program from failing.</p>
+<p>HeapSafe has two significant limitations. First, it is not fully sound
+(i.e., it can miss or misreport bad frees), mostly because of
+limitations of C itself, such as the lack of array bounds checks (see
+<a class="reference" href="#safety-in-heapsafe">Safety in HeapSafe</a>). Finally, HeapSafe does not detect memory
+leaks, as it only checks the soundness of existing frees. Unlike the
+earlier, standalone, release of <a class="reference" href="http://memory.intel-research.net">HeapSafe</a>, the version of HeapSafe
+integrated with Ivy does support multi-threaded code (though with
+higher runtime overheads).</p>
+<p>Applying HeapSafe to a program generally requires limited source code
+changes, both to use HeapSafe's extended memory management API (see
+<a class="reference" href="#deallocation-safety">Deallocation Safety</a>), and to help the runtime library track
+pointers to heap objects (see <a class="reference" href="#tracking-pointers">Tracking Pointers</a>). The modified
+source code can still be compiled and run without HeapSafe (the
+HeapSafe header file defines HeapSafe's operations in terms of the
+standard C library when HeapSafe isn't used).</p>
+<p>Our experience is that applying HeapSafe to existing medium-size
+programs is generally easy. Applying HeapSafe to larger programs like
+Perl or the Linux kernel is more complex, but still quite tractable (a
+few man-weeks of effort). HeapSafe includes a special debugging mode
+which simplifies porting programs by tracking the source of all
+pointers to objects (and where they were last written), at the cost of
+a substantial slowdown (up to 4x slower).</p>
+<p>HeapSafe is implemented as a C-to-C compiler using <a class="reference" href="http://gcc.gnu.org/">gcc</a> as its backend.
+The currently supported platforms are Linux and Mac OS X.</p>
+<div class="contents topic">
+<p class="topic-title first"><a id="contents" name="contents">Contents</a></p>
+<ul class="auto-toc simple">
+<li><a class="reference" href="#heapsafe-overview" id="id14" name="id14">1&nbsp;&nbsp;&nbsp;HeapSafe Overview</a></li>
+<li><a class="reference" href="#deallocation-safety" id="id15" name="id15">2&nbsp;&nbsp;&nbsp;Deallocation Safety</a><ul class="auto-toc">
+<li><a class="reference" href="#delayed-free-scopes" id="id16" name="id16">2.1&nbsp;&nbsp;&nbsp;Delayed Free Scopes</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#tracking-pointers" id="id17" name="id17">3&nbsp;&nbsp;&nbsp;Tracking Pointers</a><ul class="auto-toc">
+<li><a class="reference" href="#type-information" id="id18" name="id18">3.1&nbsp;&nbsp;&nbsp;Type Information</a></li>
+<li><a class="reference" href="#tracking-pointer-writes" id="id19" name="id19">3.2&nbsp;&nbsp;&nbsp;Tracking Pointer Writes</a></li>
+<li><a class="reference" href="#deallocating-objects" id="id20" name="id20">3.3&nbsp;&nbsp;&nbsp;Deallocating Objects</a></li>
+<li><a class="reference" href="#modifying-unions" id="id21" name="id21">3.4&nbsp;&nbsp;&nbsp;Modifying Unions</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#debugging-mode" id="id22" name="id22">4&nbsp;&nbsp;&nbsp;Debugging Mode</a></li>
+<li><a class="reference" href="#a-typical-conversion-to-heapsafe" id="id23" name="id23">5&nbsp;&nbsp;&nbsp;A Typical Conversion to HeapSafe</a><ul class="auto-toc">
+<li><a class="reference" href="#walk-through-cfrac" id="id24" name="id24">5.1&nbsp;&nbsp;&nbsp;Walk-through: cfrac</a><ul class="auto-toc">
+<li><a class="reference" href="#building-with-heapsafe" id="id25" name="id25">5.1.1&nbsp;&nbsp;&nbsp;Building with HeapSafe</a></li>
+<li><a class="reference" href="#investigating-the-warnings" id="id26" name="id26">5.1.2&nbsp;&nbsp;&nbsp;Investigating the Warnings</a></li>
+<li><a class="reference" href="#fixing-the-bad-frees" id="id27" name="id27">5.1.3&nbsp;&nbsp;&nbsp;Fixing the Bad Frees</a></li>
+<li><a class="reference" href="#improving-cfrac-s-performance" id="id28" name="id28">5.1.4&nbsp;&nbsp;&nbsp;Improving cfrac's Performance</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference" href="#heapsafe-reference" id="id29" name="id29">6&nbsp;&nbsp;&nbsp;HeapSafe Reference</a><ul class="auto-toc">
+<li><a class="reference" href="#compiling-without-heapsafe" id="id30" name="id30">6.1&nbsp;&nbsp;&nbsp;Compiling without HeapSafe</a></li>
+<li><a class="reference" href="#language-extensions" id="id31" name="id31">6.2&nbsp;&nbsp;&nbsp;Language Extensions</a><ul class="auto-toc">
+<li><a class="reference" href="#type-qualifiers" id="id32" name="id32">6.2.1&nbsp;&nbsp;&nbsp;Type Qualifiers</a></li>
+<li><a class="reference" href="#runtime-type-information" id="id33" name="id33">6.2.2&nbsp;&nbsp;&nbsp;Runtime Type Information</a><ul class="auto-toc">
+<li><a class="reference" href="#automatically-generated-adjust-functions" id="id34" name="id34">6.2.2.1&nbsp;&nbsp;&nbsp;Automatically Generated Adjust Functions</a></li>
+<li><a class="reference" href="#writing-adjust-functions" id="id35" name="id35">6.2.2.2&nbsp;&nbsp;&nbsp;Writing Adjust Functions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference" href="#library" id="id36" name="id36">6.3&nbsp;&nbsp;&nbsp;Library</a><ul class="auto-toc">
+<li><a class="reference" href="#allocation-and-deallocation" id="id37" name="id37">6.3.1&nbsp;&nbsp;&nbsp;Allocation and Deallocation</a></li>
+<li><a class="reference" href="#id9" id="id38" name="id38">6.3.2&nbsp;&nbsp;&nbsp;Delayed Free Scopes</a></li>
+<li><a class="reference" href="#type-aware-memory-functions" id="id39" name="id39">6.3.3&nbsp;&nbsp;&nbsp;Type-aware Memory Functions</a></li>
+<li><a class="reference" href="#custom-allocator-support" id="id40" name="id40">6.3.4&nbsp;&nbsp;&nbsp;Custom Allocator Support</a></li>
+<li><a class="reference" href="#hslib-h-definitions" id="id41" name="id41">6.3.5&nbsp;&nbsp;&nbsp;hslib.h Definitions</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#heapsafe-environment-variable" id="id42" name="id42">6.4&nbsp;&nbsp;&nbsp;HEAPSAFE Environment Variable</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#programming-with-heapsafe" id="id43" name="id43">7&nbsp;&nbsp;&nbsp;Programming with HeapSafe</a><ul class="auto-toc">
+<li><a class="reference" href="#local-variables" id="id44" name="id44">7.1&nbsp;&nbsp;&nbsp;Local Variables</a></li>
+<li><a class="reference" href="#interactions-with-external-code" id="id45" name="id45">7.2&nbsp;&nbsp;&nbsp;Interactions with External Code</a></li>
+<li><a class="reference" href="#improving-performance" id="id46" name="id46">7.3&nbsp;&nbsp;&nbsp;Improving Performance</a></li>
+<li><a class="reference" href="#custom-memory-allocators" id="id47" name="id47">7.4&nbsp;&nbsp;&nbsp;Custom Memory Allocators</a></li>
+<li><a class="reference" href="#safety-in-heapsafe" id="id48" name="id48">7.5&nbsp;&nbsp;&nbsp;Safety in HeapSafe</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#implementation-overview" id="id49" name="id49">8&nbsp;&nbsp;&nbsp;Implementation Overview</a><ul class="auto-toc">
+<li><a class="reference" href="#reference-counting" id="id50" name="id50">8.1&nbsp;&nbsp;&nbsp;Reference Counting</a></li>
+<li><a class="reference" href="#id12" id="id51" name="id51">8.2&nbsp;&nbsp;&nbsp;Local Variables</a></li>
+<li><a class="reference" href="#id13" id="id52" name="id52">8.3&nbsp;&nbsp;&nbsp;Delayed Free Scopes</a></li>
+<li><a class="reference" href="#checking-frees" id="id53" name="id53">8.4&nbsp;&nbsp;&nbsp;Checking Frees</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#copyrights" id="id54" name="id54">9&nbsp;&nbsp;&nbsp;Copyrights</a><ul class="auto-toc">
+<li><a class="reference" href="#compiler" id="id55" name="id55">9.1&nbsp;&nbsp;&nbsp;Compiler</a></li>
+<li><a class="reference" href="#runtime-library" id="id56" name="id56">9.2&nbsp;&nbsp;&nbsp;Runtime Library</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section">
+<h1><a class="toc-backref" href="#id14" id="heapsafe-overview" name="heapsafe-overview">1&nbsp;&nbsp;&nbsp;HeapSafe Overview</a></h1>
+<p>HeapSafe maintains a reference count for each object, i.e., a count of
+the number of pointers to each object. A deallocation of an object <em>O</em>
+is safe if <em>O</em>'s reference count is zero[#]_.</p>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3" name="id2">[1]</a></td><td>Reference counts due to internal references within <em>O</em> are
+removed prior to this check.</td></tr>
+</tbody>
+</table>
+<p>The HeapSafe compiler transforms C programs to update reference counts
+on every pointer write. The HeapSafe runtime library includes:</p>
+<blockquote>
+<ul class="simple">
+<li>Replacements for C's memory management functions (<tt class="docutils literal"><span class="pre">malloc</span></tt>,
+<tt class="docutils literal"><span class="pre">calloc</span></tt>, <tt class="docutils literal"><span class="pre">realloc</span></tt> and <tt class="docutils literal"><span class="pre">free</span></tt>). These replacements:<ul>
+<li>clear memory when it is allocated (i.e., <tt class="docutils literal"><span class="pre">malloc</span></tt> behaves like
+<tt class="docutils literal"><span class="pre">calloc</span></tt>), to avoid corrupting reference counts on the first
+write of a pointer</li>
+<li>check deallocation safety in <tt class="docutils literal"><span class="pre">free</span></tt> and <tt class="docutils literal"><span class="pre">realloc</span></tt></li>
+</ul>
+</li>
+<li>Support for <em>delayed free scopes</em>, which delay deallocation and
+its associated reference count check. These scopes are key to
+making HeapSafe's checks practical (see <a class="reference" href="#deallocation-safety">Deallocation Safety</a>).</li>
+<li>Replacements for C's <tt class="docutils literal"><span class="pre">memcpy</span></tt>, <tt class="docutils literal"><span class="pre">memmove</span></tt> and <tt class="docutils literal"><span class="pre">memset</span></tt>
+functions that update reference counts correctly when copying
+pointers.</li>
+</ul>
+</blockquote>
+<p>Using HeapSafe and its runtime library instead of <a class="reference" href="http://gcc.gnu.org/">gcc</a> is as simple as
+replacing uses of <tt class="docutils literal"><span class="pre">gcc</span></tt> by <tt class="docutils literal"><span class="pre">ivycc</span> <span class="pre">--heapsafe</span></tt>, and #including
+the <tt class="docutils literal"><span class="pre">heapsafe.h</span></tt> header file which declares HeapSafe's runtime
+library.  HeapSafe's symbols start with <tt class="docutils literal"><span class="pre">hs_</span></tt>, <tt class="docutils literal"><span class="pre">HS_</span></tt> or <tt class="docutils literal"><span class="pre">RC_</span></tt> to
+avoid name conflicts (e.g., HeapSafe's <tt class="docutils literal"><span class="pre">malloc</span></tt> replacement is
+<tt class="docutils literal"><span class="pre">hs_malloc</span></tt>).</p>
+<p>HeapSafe also includes a header file, <tt class="docutils literal"><span class="pre">hslib.h</span></tt>, which redefines a
+few standard C library functions (in particular, the <tt class="docutils literal"><span class="pre">malloc</span></tt>,
+<tt class="docutils literal"><span class="pre">calloc</span></tt>, <tt class="docutils literal"><span class="pre">realloc</span></tt> and <tt class="docutils literal"><span class="pre">free</span></tt> memory management functions) in
+terms of HeapSafe functions to simplify porting.</p>
+<p>At startup, programs compiled with HeapSafe check the <tt class="docutils literal"><span class="pre">HEAPSAFE</span></tt>
+environment variable to set various options (see <a class="reference" href="#heapsafe-environment-variable">HEAPSAFE Environment
+Variable</a> for full details). In particular:</p>
+<blockquote>
+<ul class="simple">
+<li>If <tt class="docutils literal"><span class="pre">HEAPSAFE=log</span></tt>, then HeapSafe will print the number of bad
+frees (along with a few other statistics) when the program exits.</li>
+<li>If <tt class="docutils literal"><span class="pre">HEAPSAFE=forcefree</span></tt>, then HeapSafe will free objects that
+fail their deallocation check rather than silently leaking them.
+This may be a better option early in the conversion process to
+HeapSafe when many deallocations fail.</li>
+</ul>
+</blockquote>
+<p>Use <tt class="docutils literal"><span class="pre">HEAPSAFE=&quot;forcefree</span> <span class="pre">log&quot;</span></tt> if you want both behaviours.</p>
+<p>With <tt class="docutils literal"><span class="pre">hslib.h</span></tt> included and <tt class="docutils literal"><span class="pre">HEAPSAFE=forcefree</span></tt>, most C programs
+can immediately be run with HeapSafe. They will however most likely
+report a number of bad frees, which you will need to address... See <a class="reference" href="#a-typical-conversion-to-heapsafe">A
+Typical Conversion to HeapSafe</a> for more details.</p>
+<p>A final note: HeapSafe's reference counts are stored in a 512MB array
+that is declared by the runtime library. Because of Linux's lazy page
+allocation strategy, the system only allocates as pages for those
+reference count entries that are actually used - this leads to a 12.5%
+memory overhead for reference counting (see <a class="reference" href="#implementation-overview">Implementation
+Overview</a>). However, if your machine does not have 512MB of virtual
+memory (e.g., you have little RAM and no swap space configured), Linux
+will just kill your program on startup (and print <tt class="docutils literal"><span class="pre">Killed</span></tt>). This can
+be fixed by setting <tt class="docutils literal"><span class="pre">/proc/sys/vm/overcommit_memory</span></tt> to 1:</p>
+<pre class="literal-block">
+# do this as root
+echo 1 &gt; /proc/sys/vm/overcommit_memory
+</pre>
+</div>
+<div class="section">
+<h1><a class="toc-backref" href="#id15" id="deallocation-safety" name="deallocation-safety">2&nbsp;&nbsp;&nbsp;Deallocation Safety</a></h1>
+<p>Checking that an object's reference count is zero at deallocation time
+ensures that no pointers remain to the object, hence no subsequent
+access can corrupt the deallocated memory. In many cases, the pointer
+passed to <tt class="docutils literal"><span class="pre">free</span></tt> is already the only remaining pointer to the
+object, so as long as that pointer is zeroed-out, the deallocation is
+safe.  HeapSafe provides a macro, <tt class="docutils literal"><span class="pre">HS_ZFREE</span></tt>, which frees an object
+and zeroes-out its argument, directly supporting this common case.
+For instance, the following program will run without HeapSafe
+reporting any problems:</p>
+<pre class="literal-block">
+#include &lt;heapsafe.h&gt;
+int *mem;
+
+int main()
+{
+  mem = hs_malloc(100 * sizeof(int));
+  ...
+  HS_ZFREE(mem);
+}
+</pre>
+<p>If <tt class="docutils literal"><span class="pre">free</span></tt> was used instead of <tt class="docutils literal"><span class="pre">HS_ZFREE</span></tt>, HeapSafe would report
+that the deallocation was bad, as the global variable <tt class="docutils literal"><span class="pre">mem</span></tt> would
+still point to the object.</p>
+<p>Note that objects stored in local variables do not need to be
+zeroed-out as long as the local variable is dead (not subsequently
+used without being reassigned) after the free. If <tt class="docutils literal"><span class="pre">mem</span></tt> becomes a
+local variable, the example above can be written as:</p>
+<pre class="literal-block">
+#include &lt;heapsafe.h&gt;
+
+int main()
+{
+  int *mem = hs_malloc(100 * sizeof(int));
+  ...
+  HS_FREE(mem);
+}
+</pre>
+<p>The <tt class="docutils literal"><span class="pre">HS_FREE</span></tt> macro does not zero-out its argument; it is the most
+direct replacement for the standard <tt class="docutils literal"><span class="pre">free</span></tt> function when using
+HeapSafe.</p>
+<p>When several pointers point to the object being freed, <tt class="docutils literal"><span class="pre">HS_ZFREE</span></tt> is
+not sufficient. One solution is to zero-out all the other pointers
+to the object to be deallocated:</p>
+<pre class="literal-block">
+#include &lt;heapsafe.h&gt;
+int *mem, *scan;
+
+int main()
+{
+  mem = hs_malloc(100 * sizeof(int));
+
+  for(scan = mem; scan &lt; mem + 100; scan++)
+    *scan = 42;
+
+  scan = NULL; /* Without this, the free will fail */
+  HS_ZFREE(mem);
+}
+</pre>
+<p>Zeroing-out <tt class="docutils literal"><span class="pre">scan</span></tt> is necessary as it still points to the end of the
+object in <tt class="docutils literal"><span class="pre">mem</span></tt>.</p>
+<div class="section">
+<h2><a class="toc-backref" href="#id16" id="delayed-free-scopes" name="delayed-free-scopes">2.1&nbsp;&nbsp;&nbsp;Delayed Free Scopes</a></h2>
+<p>In some cases, zeroing-out pointers is not very practical. Consider
+for instance deallocating a circular linked-list (where the last
+element points to the first):</p>
+<pre class="literal-block">
+void free_loop(struct loop *start)
+{
+  struct loop *next, *cur = start;
+  do
+    {
+      next = cur-&gt;next;
+      free(cur);
+      cur = next;
+    }
+  while (cur != start);
+}
+</pre>
+<p>When the first element is freed, there remains a pointer from the last
+element (which will not be deallocated until the end of the list is
+reached). While it would be possible to modify the code to make the
+list non-circular, this would complicate the code (possibly
+introducing bugs).  And for more complex data structures, the code to
+zero-out internal data structure pointers could become quite
+complicated, especially as it must still be possible to free the whole
+data structure afterwards.</p>
+<p>To get around this problem, HeapSafe introduces a small extension to
+the memory management API, <em>delayed free scopes</em>. Delayed free scopes
+are based on the observation that while pointers often remain to
+deallocated objects, these pointers are generally soon overwritten or
+are themselves found in objects that are soon deallocated (e.g.,
+because they are part of the same data structure, as in the circular
+list example). With delayed free scopes, frees requested within the
+scope are only performed and checked when the scope ends. For
+instance, the circular list example above becomes:</p>
+<pre class="literal-block">
+void free_loop(struct loop *start)
+{
+  struct loop *next, *cur = start;
+  hs_delayed_free_start(); /* Delay frees until the end of the function */
+  do
+    {
+      next = cur-&gt;next;
+      HS_FREE(cur);
+      cur = next;
+    }
+  while (cur != start);
+  hs_delayed_free_end(); /* Perform delayed frees */
+}
+</pre>
+<p>If delayed free scopes are nested, deallocations are delayed until the
+outermost scope ends.</p>
+</div>
+</div>
+<div class="section">
+<h1><a class="toc-backref" href="#id17" id="tracking-pointers" name="tracking-pointers">3&nbsp;&nbsp;&nbsp;Tracking Pointers</a></h1>
+<p>HeapSafe depends on accurate reference counts. Maintaining these requires</p>
+<blockquote>
+<ol class="arabic simple">
+<li>tracking all pointer writes (including, e.g., those done via
+structure copies or <tt class="docutils literal"><span class="pre">memcpy</span></tt>)</li>
+<li>knowing the types of deallocated objects (to update the reference
+counts of objects referenced from the now-dead object)</li>
+<li>noticing when a program changes how it uses unions containing
+pointers (e.g., switches from using an <tt class="docutils literal"><span class="pre">int</span></tt> field in a union
+to a <tt class="docutils literal"><span class="pre">void</span> <span class="pre">*</span></tt>)</li>
+</ol>
+</blockquote>
+<div class="section">
+<h2><a class="toc-backref" href="#id18" id="type-information" name="type-information">3.1&nbsp;&nbsp;&nbsp;Type Information</a></h2>
+<p>To assist in tracking pointers, HeapSafe introduces <em>adjust
+functions</em>, a form of run-time type information. An adjust function
+for a type <em>T</em> is a function that will adjust the reference count for
+all objects referenced by an array of objects of type <em>T</em>. For
+instance, for the type:</p>
+<pre class="literal-block">
+struct doubly_linked_list {
+  int value;
+  struct doubly_linked_list *prev, *next;
+};
+</pre>
+<p>the adjust function adjusts the reference counts of objects referenced
+by the <tt class="docutils literal"><span class="pre">next</span></tt> and <tt class="docutils literal"><span class="pre">prev</span></tt> fields.</p>
+<p>An adjust function has type <tt class="docutils literal"><span class="pre">hs_type_t</span></tt>, defined as:</p>
+<pre class="literal-block">
+typedef void (*hs_type_t)(void *x, int by, size_t s);
+</pre>
+<p>The function takes a pointer to the array of objects of type <em>T</em>
+(<tt class="docutils literal"><span class="pre">x</span></tt>), an amount by which to adjust the reference counts (<tt class="docutils literal"><span class="pre">by</span></tt>,
+must be +1 or -1) and the size (in bytes) of the array of objects
+(<tt class="docutils literal"><span class="pre">s</span></tt>).</p>
+<p>The adjust function for type <em>T</em> is obtained using the <tt class="docutils literal"><span class="pre">hs_typeof(</span></tt>
+<em>T</em> <tt class="docutils literal"><span class="pre">)</span></tt> construction. Normally, HeapSafe automatically generates the
+code for an adjust function, however if type <em>T</em> is (or contains) an
+union containing pointers, then you have to write an adjust function
+by hand <a class="footnote-reference" href="#id2" id="id3" name="id3">[1]</a>, as HeapSafe has no way of knowing which field of the
+union is currently in use. For details on writing adjust functions by
+hand, see <a class="reference" href="#writing-adjust-functions">Writing Adjust Functions</a>.</p>
+<table class="docutils footnote" frame="void" id="id4" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id6" name="id4">[2]</a></td><td>If a union contains only pointer fields, then HeapSafe can still
+generate the adjust function.</td></tr>
+</tbody>
+</table>
+<p>Adjust functions are used by HeapSafe's (de)allocation API
+(<tt class="docutils literal"><span class="pre">hs_typed_realloc</span></tt>, <tt class="docutils literal"><span class="pre">hs_typed_free</span></tt>) and to help HeapSafe track
+pointer writes.</p>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id19" id="tracking-pointer-writes" name="tracking-pointer-writes">3.2&nbsp;&nbsp;&nbsp;Tracking Pointer Writes</a></h2>
+<p>Pointer writes and copies of structures containing pointers are
+automatically handled by HeapSafe. To copy a structure of type <em>T</em>,
+HeapSafe uses <em>T</em>'s adjust function, so HeapSafe will ask for a
+hand-written adjust function when it cannot generate one
+automatically.  For instance, in the following code the programmer
+must write an adjust function for <tt class="docutils literal"><span class="pre">struct</span> <span class="pre">strange</span></tt>:</p>
+<pre class="literal-block">
+struct strange {
+  enum { k_integer, k_pointer } key;
+  union {
+    int integer;
+    void *pointer;
+  } values;
+} a, b;
+
+void f(void)
+{
+  /* This copy requires a hand-written adjust function for strange */
+  a = b;
+}
+</pre>
+<p>Calling <tt class="docutils literal"><span class="pre">memcpy</span></tt>, <tt class="docutils literal"><span class="pre">memmove</span></tt> and <tt class="docutils literal"><span class="pre">memset</span></tt> (and other similar
+functions) to copy objects containing pointers will cause HeapSafe's
+reference counts to go wrong. This can lead to both over-reporting of
+bad frees (HeapSafe thinks an object is accessible when it isn't) and
+under-reporting (HeapSafe doesn't realise an object is accessible).
+To make converting programs for use with HeapSafe simple</p>
+<blockquote>
+<ul>
+<li><p class="first">HeapSafe reports when it detects a problematical use of <tt class="docutils literal"><span class="pre">memcpy</span></tt>
+and friends. HeapSafe reports when the type of actual arguments to
+a particular call to <tt class="docutils literal"><span class="pre">memcpy</span></tt> contains pointers, e.g.:</p>
+<pre class="literal-block">
+int **buf1, **buf2;
+memcpy(buf2, buf1, 10 * sizeof(int *));
+</pre>
+<p>will report a problem as the type of both <tt class="docutils literal"><span class="pre">buf1</span></tt> and <tt class="docutils literal"><span class="pre">buf2</span></tt>
+(<tt class="docutils literal"><span class="pre">int</span> <span class="pre">**</span></tt>) contains pointers. Conversely:</p>
+<pre class="literal-block">
+int *buf3, *buf4;
+memcpy(buf3, buf4, 10 * sizeof(int));
+</pre>
+<p>will not report any warning as <tt class="docutils literal"><span class="pre">buf3</span></tt> and <tt class="docutils literal"><span class="pre">buf4</span></tt> (pointers to
+integers) do not contain pointers. Note also that these warnings
+are based on the actual types at the call site, so can be easily
+fooled. For instance neither of these two uses of <tt class="docutils literal"><span class="pre">memcpy</span></tt> will
+report warnings:</p>
+<pre class="literal-block">
+int **buf1, **buf2;
+void *x = buf1, *y = buf2;
+memcpy(y, x, 10 * sizeof(int *));
+memcpy((void *)buf2, (void *)buf1, 20 * sizeof(int *));
+</pre>
+<p>In both cases, the type of the arguments to <tt class="docutils literal"><span class="pre">memcpy</span></tt> is <tt class="docutils literal"><span class="pre">void</span> <span class="pre">*</span></tt>
+which is not known to contain pointers.</p>
+</li>
+<li><p class="first">HeapSafe's library contains type-aware replacements for
+<tt class="docutils literal"><span class="pre">memcpy</span></tt>, <tt class="docutils literal"><span class="pre">memmove</span></tt> and <tt class="docutils literal"><span class="pre">memset</span></tt> which make code conversion
+simple. For instance:</p>
+<pre class="literal-block">
+int **buf1, **buf2;
+hs_memcpy(buf2, buf1, 10 * sizeof(int *), hs_typeof(int *));
+</pre>
+<p>These functions are identical to the regular C functions except
+that their name starts with <tt class="docutils literal"><span class="pre">hs_</span></tt> and they take an adjust
+function for the type of object being copied as their last
+argument.</p>
+<p>To further simplify code, HeapSafe defines macros which
+automatically apply <tt class="docutils literal"><span class="pre">hs_typeof</span></tt> to the first argument:</p>
+<pre class="literal-block">
+int **buf1, **buf2;
+HS_MEMCPY(buf2, buf1, 10 * sizeof(int *));
+</pre>
+<p>These macros work as long as the type of the first argument
+accurately represents the type being copied. If it doesn't, they
+shouldn't be used.  For instance, the following code is bad:</p>
+<pre class="literal-block">
+int **buf1, **buf2;
+/* This will copy buf1 to buf2 as if there were no pointers. Oops. */
+HS_MEMCPY((char *)buf2, (char *)buf1, 10 * sizeof(int *));
+</pre>
+</li>
+</ul>
+</blockquote>
+<p>If your program contains your own generic functions like <tt class="docutils literal"><span class="pre">memcpy</span></tt>
+(or built on top of <tt class="docutils literal"><span class="pre">memcpy</span></tt> and friends), and these are applied to
+types containing pointers, you will need to extend them to take type
+information like <tt class="docutils literal"><span class="pre">hs_memcpy</span></tt>.</p>
+<p>Finally note that there are sometimes generic functions that copy
+pointers but do not cause reference counts to go wrong even without
+type information. For instance, <tt class="docutils literal"><span class="pre">qsort</span></tt> can safely sort an array of
+pointers to objects: its writes only end up permuting the pointers, so
+do not change the value of any reference counts.</p>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id20" id="deallocating-objects" name="deallocating-objects">3.3&nbsp;&nbsp;&nbsp;Deallocating Objects</a></h2>
+<p>When an object is deallocated, HeapSafe uses its adjust function to
+update the counts of all referenced objects. Thus the functions that
+cause deallocation (<tt class="docutils literal"><span class="pre">hs_typed_free</span></tt> and <tt class="docutils literal"><span class="pre">hs_typed_realloc</span></tt>) take
+an adjust function as their last argument:</p>
+<pre class="literal-block">
+#include &lt;heapsafe.h&gt;
+
+int main()
+{
+  int *mem = hs_malloc(100 * sizeof(int));
+  ...
+  hs_typed_free(mem, hs_typeof(int));
+}
+</pre>
+<p>As with <tt class="docutils literal"><span class="pre">HS_MEMCPY</span></tt>, the <tt class="docutils literal"><span class="pre">HS_FREE</span></tt> and <tt class="docutils literal"><span class="pre">HS_REALLOC</span></tt> macros
+simply automate the use of <tt class="docutils literal"><span class="pre">hs_typeof</span></tt> under the assumption that the
+type of its argument accurately reflects the type of the object being
+freed, as in the example we saw earlier:</p>
+<pre class="literal-block">
+#include &lt;heapsafe.h&gt;
+
+int main()
+{
+  int *mem = hs_malloc(100 * sizeof(int));
+  ...
+  HS_FREE(mem);
+}
+</pre>
+<p>Like <tt class="docutils literal"><span class="pre">HS_FREE</span></tt>, <tt class="docutils literal"><span class="pre">HS_ZFREE</span></tt> assumes that the type of its argument
+is correct.</p>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id21" id="modifying-unions" name="modifying-unions">3.4&nbsp;&nbsp;&nbsp;Modifying Unions</a></h2>
+<p>The following code fragment uses a <tt class="docutils literal"><span class="pre">union</span></tt> first to store an
+integer, then to store a pointer:</p>
+<pre class="literal-block">
+struct strange {
+  enum { k_integer, k_pointer } key;
+  union {
+    int integer;
+    void *pointer;
+  } values;
+} a;
+
+int g;
+
+void havefun(void) {
+  /* Use a to store an integer */
+  a.key = k_integer;
+  a.values.integer = 33;
+  ...
+  /* Use a to store a pointer */
+  a.key = k_pointer;
+  a.values.pointer = &amp;g;
+}
+</pre>
+<p>This kind of code (where a <tt class="docutils literal"><span class="pre">union</span></tt> is switched between different
+purposes) can cause problems for HeapSafe's reference counts: the
+write to <tt class="docutils literal"><span class="pre">a.values.pointer</span></tt> assumes it is overwriting a pointer, so
+will read <tt class="docutils literal"><span class="pre">a.values.pointer</span></tt>'s old value to reduce its reference
+count by one (as it is no longer going to be referenced from
+there). However, in this case <tt class="docutils literal"><span class="pre">a.values.pointer</span></tt> simply holds a bit
+pattern corresponding to the integer 33 written earlier. This bit
+pattern may or may not &quot;point&quot; to some valid object. This can cause
+reference counts to go wrong.</p>
+<p>To avoid these problems, you should either:</p>
+<blockquote>
+<ul class="simple">
+<li>not switch a <tt class="docutils literal"><span class="pre">union</span></tt> between different purposes</li>
+<li>zero-out (set to all 0 bytes) the <tt class="docutils literal"><span class="pre">union</span></tt> before repurposing it
+- this works because all 0 bytes correspond to NULL pointers[#]_</li>
+</ul>
+</blockquote>
+<table class="docutils footnote" frame="void" id="id5" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a name="id5">[3]</a></td><td>While this is not guaranteed by the C standard, it is true of
+all common modern architectures.</td></tr>
+</tbody>
+</table>
+<p>To simplify zeroing-out the <tt class="docutils literal"><span class="pre">union</span></tt> part of a larger structure,
+HeapSafe provides an <tt class="docutils literal"><span class="pre">HS_MUTATE</span></tt> macro which safely zeroes out a
+<tt class="docutils literal"><span class="pre">union</span></tt> within a structure. Using <tt class="docutils literal"><span class="pre">HS_MUTATE</span></tt>, the <tt class="docutils literal"><span class="pre">havefun</span></tt>
+function is written:</p>
+<pre class="literal-block">
+void havefun(void) {
+  /* Use a to store an integer */
+  HS_MUTATE(a, values);
+  a.key = k_integer;
+  a.values.integer = 33;
+  ...
+  /* Use a to store a pointer */
+  HS_MUTATE(a, values);
+  a.key = k_pointer;
+  a.values.pointer = &amp;g;
+}
+</pre>
+</div>
+</div>
+<div class="section">
+<h1><a class="toc-backref" href="#id22" id="debugging-mode" name="debugging-mode">4&nbsp;&nbsp;&nbsp;Debugging Mode</a></h1>
+<p>Bad frees have two main causes in HeapSafe:</p>
+<blockquote>
+<ol class="arabic simple">
+<li>some pointers to the freed object remain</li>
+<li>the reference count to the object went wrong (e.g., because <tt class="docutils literal"><span class="pre">memcpy</span></tt>
+was used)</li>
+</ol>
+</blockquote>
+<p>It can be quite tricky to figure out where pointers remain, or where
+reference counts went wrong. To assist in this process, HeapSafe
+provides a debugging mode which tracks the origin of all pointers to a
+particular object. When running a program compiled with the debugging
+mode, you can call the <tt class="docutils literal"><span class="pre">hsinfo</span></tt> function with any pointer as
+argument. This call will report:</p>
+<blockquote>
+<ul class="simple">
+<li>where (file, line) the object (if any) referenced by the pointer
+was allocated</li>
+<li>the source of all pointers to the object and where (file, line)
+those pointers were written</li>
+</ul>
+</blockquote>
+<p>This information is usually very helpful in adding code to zero-out
+pointers or figuring out where to place delayed free scopes.</p>
+<p>If reference counts have gone wrong, <tt class="docutils literal"><span class="pre">hsinfo</span></tt> will report that its
+source pointer information is inconsistent with the current memory
+contents. The object containing the inconsistency is the object that
+has been overwritten behind HeapSafe's back.</p>
+<p>A typical way to use <tt class="docutils literal"><span class="pre">hsinfo</span></tt> is to set a breakpoint in gdb in the
+<tt class="docutils literal"><span class="pre">forcefree</span></tt> function (part of HeapSafe's runtime library). This
+function is called on all bad frees, with the object that was not
+deallocatable as argument. For instance, if you compile the
+<tt class="docutils literal"><span class="pre">test/simple/fail1</span></tt> application with HeapSafe's debug mode and run
+it under gdb, you might get (comments with <tt class="docutils literal"><span class="pre">***</span></tt>):</p>
+<pre class="literal-block">
+.../heapsafe-1.0/test/simple$ ivycc --heapsafe --hs-debug -g fail1.c  -o fail1
+.../heapsafe-1.0/test/simple$ gdb fail1
+
+*** Stop in forcefree to detect bad frees
+(gdb) b forcefree
+Breakpoint 1 at 0x80490c0: file heapsafe_libc_debug.c, line 5653.
+(gdb) r
+Starting program: /tmp/heapsafe-1.0/test/simple/fail1
+
+Breakpoint 1, forcefree (h=0x28810040) at heapsafe_libc_debug.c:5653
+5653    {
+*** We got a bad free, find out what it was
+(gdb) p hsinfo(h)
+[0x28810040 in O:0x28810050/44 (A:fail1.c:8)]
+#R:[0x880f624 global] to 0x28810050, W:fail1.c:8
+*** There's a reference from the global at address 0x880f624, which was
+*** written at fail1.c:8. Ask gdb what symbol that is:
+(gdb) info sym 0x880f624
+gx in section .bss
+*** It's gx. Let's look at out stack trace.
+
+(gdb) bt
+#0  forcefree (h=0x28810040) at heapsafe_libc_debug.c:5653
+#1  0x0804ba17 in rcfree (hdr=0x28810040) at heapsafe_libc_debug.c:4328
+#2  0x08048b10 in main () at fail1.c:9
+(gdb) fra 2
+#2  0x08048b10 in main () at fail1.c:9
+9         HS_FREE(gx);
+*** Ahha! We're freeing a global, but gx will still point to
+*** the freed object. One possible fix: use HS_ZFREE instead.
+</pre>
+<p>When using a debugger, it can be useful to compile with the
+<tt class="docutils literal"><span class="pre">--saveadjust=somedir</span></tt> option, to make the source code for adjust
+functions available to the debugger. Within <tt class="docutils literal"><span class="pre">gdb</span></tt>, you should then
+also execute <tt class="docutils literal"><span class="pre">dir</span> <span class="pre">somedir</span></tt> to add <tt class="docutils literal"><span class="pre">somedir</span></tt> to your source code
+search path.</p>
+<p>Note that the debugging mode currently does not support multi-threaded
+code.</p>
+</div>
+<div class="section">
+<h1><a class="toc-backref" href="#id23" id="a-typical-conversion-to-heapsafe" name="a-typical-conversion-to-heapsafe">5&nbsp;&nbsp;&nbsp;A Typical Conversion to HeapSafe</a></h1>
+<p>The <tt class="docutils literal"><span class="pre">hslib.h</span></tt> header file simplifies initial conversion of program's
+to use HeapSafe by defining a few C functions (<tt class="docutils literal"><span class="pre">malloc</span></tt>, <tt class="docutils literal"><span class="pre">free</span></tt>,
+<tt class="docutils literal"><span class="pre">calloc</span></tt>, <tt class="docutils literal"><span class="pre">realloc</span></tt>, <tt class="docutils literal"><span class="pre">memcpy</span></tt>, <tt class="docutils literal"><span class="pre">memmove</span></tt>, <tt class="docutils literal"><span class="pre">memset</span></tt>) in terms
+of HeapSafe functions and macros. Using <tt class="docutils literal"><span class="pre">hslib.h</span></tt>, the typical steps
+for converting a program for HeapSafe are:</p>
+<blockquote>
+<ol class="arabic">
+<li><p class="first">Modify the <tt class="docutils literal"><span class="pre">Makefile</span></tt> so that it calls HeapSafe rather than the
+standard C compiler. Furthermore, invoke HeapSafe in debugging mode
+and force inclusion of <tt class="docutils literal"><span class="pre">hslib.h</span></tt>. This can typically be done by
+adding:</p>
+<pre class="literal-block">
+CC = ivycc --heapsafe --hs-debug --warn-typeof-char -include hslib.h
+</pre>
+<p>to the <tt class="docutils literal"><span class="pre">Makefile</span></tt> (and removing any previous <tt class="docutils literal"><span class="pre">CC</span> <span class="pre">=</span> <span class="pre">...</span></tt> line).</p>
+<p>The <tt class="docutils literal"><span class="pre">--warn-typeof-char</span></tt> option instructs HeapSafe to warn when
+<tt class="docutils literal"><span class="pre">hs_typeof</span></tt> is applied to the <tt class="docutils literal"><span class="pre">char</span></tt> type. This helps detects
+a few common problems during conversion to HeapSafe:</p>
+<blockquote>
+<ul>
+<li><p class="first">Casts to <tt class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></tt> in arguments to <tt class="docutils literal"><span class="pre">free</span></tt>, <tt class="docutils literal"><span class="pre">memcpy</span></tt>, etc, e.g.</p>
+<pre class="literal-block">
+struct T *some_pointer;
+free((char *)some_pointer);
+</pre>
+<p>These casts are common in old (pre-ANSI) code, which was written
+when C did not have a <tt class="docutils literal"><span class="pre">void</span> <span class="pre">*</span></tt> type. These casts cause HeapSafe
+to assume the incorrect type for freed objects (i.e., in this case
+that we're freeing a <tt class="docutils literal"><span class="pre">char</span></tt> or <tt class="docutils literal"><span class="pre">char</span></tt> array rather than a
+<tt class="docutils literal"><span class="pre">struct</span> <span class="pre">T</span></tt>).</p>
+<p>The fix to code like this is normally simple: remove the cast.</p>
+</li>
+<li><p class="first">Calls to <tt class="docutils literal"><span class="pre">memcpy</span></tt> and friends with <tt class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></tt> arguments. These
+calls may be benign (e.g., copying parts of strings), but may
+also be related to copying parts of structures containing pointers
+(via some earlier casts).</p>
+</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Build the project, and note and fix warnings and errors reported
+by the HeapSafe compiler. These typically include:</p>
+<ul class="simple">
+<li>writing adjust functions for types containing unions</li>
+<li>removing casts to <tt class="docutils literal"><span class="pre">void</span> <span class="pre">*</span></tt> and <tt class="docutils literal"><span class="pre">char</span> <span class="pre">*</span></tt> in deallocation,
+<tt class="docutils literal"><span class="pre">memcpy</span></tt>, etc functions</li>
+</ul>
+<p>You may want to use the <tt class="docutils literal"><span class="pre">--fakeadjust=somedir</span></tt> option to automatically
+generate an <em>incorrect</em> version of adjust functions for types containing
+unions . This incorrect adjust function is often a useful starting point
+for a correct adjust function (in particular, all the parts that do
+not refer to the union should be fine).</p>
+</li>
+<li><p class="first">Run the project on test inputs, and search for the causes of
+the bad frees using HeapSafe's debug facilities (see above).</p>
+<p>Fix these bad frees by adding scopes, <tt class="docutils literal"><span class="pre">HS_ZFREE</span></tt> calls, type
+safety fixes and additional zeroing code.</p>
+<p>In some programs it is sufficient to replace all uses of <tt class="docutils literal"><span class="pre">free</span></tt>
+and <tt class="docutils literal"><span class="pre">realloc</span></tt> by <tt class="docutils literal"><span class="pre">HS_ZFREE</span></tt> and <tt class="docutils literal"><span class="pre">HS_ZREALLOC</span></tt> (this can in
+fact be a good first step).</p>
+</li>
+<li><p class="first">Fix any memory management bugs you discover in the process ;-)</p>
+</li>
+<li><p class="first">Improve performance by</p>
+<ul class="simple">
+<li>removing the <tt class="docutils literal"><span class="pre">--debuglib</span></tt> compilation flag</li>
+<li>ensuring that delayed free scopes are not too large</li>
+<li>adding <tt class="docutils literal"><span class="pre">hs_nofree</span></tt> annotations (see <a class="reference" href="#improving-performance">Improving performance</a>)</li>
+<li>removing unnecessary <tt class="docutils literal"><span class="pre">memset</span></tt> calls (because HeapSafe's
+<tt class="docutils literal"><span class="pre">hs_malloc</span></tt> zeroes memory) or using HeapSafe's typed
+<tt class="docutils literal"><span class="pre">HS_ALLOC</span></tt> and <tt class="docutils literal"><span class="pre">HS_ARRAYALLOC</span></tt> allocation macros (see
+<a class="reference" href="#allocation-and-deallocation">Allocation and Deallocation</a>)</li>
+</ul>
+</li>
+<li><p class="first">Optionally, stop using <tt class="docutils literal"><span class="pre">hslib.h</span></tt> by</p>
+<ul class="simple">
+<li>ensuring <tt class="docutils literal"><span class="pre">heapsafe.h</span></tt> is included in all your C files</li>
+<li>replacing the functions defined by <tt class="docutils literal"><span class="pre">hslib.h</span></tt> by their HeapSafe
+equivalent</li>
+</ul>
+</li>
+</ol>
+</blockquote>
+<div class="section">
+<h2><a class="toc-backref" href="#id24" id="walk-through-cfrac" name="walk-through-cfrac">5.1&nbsp;&nbsp;&nbsp;Walk-through: cfrac</a></h2>
+<p>In this section, we walk through the conversion of the <tt class="docutils literal"><span class="pre">cfrac</span></tt>
+program to use HeapSafe. HeapSafe's distribution includes two copies
+of this program: <tt class="docutils literal"><span class="pre">original-cfrac</span></tt> is the original C code, and
+<tt class="docutils literal"><span class="pre">cfrac</span></tt> is the version modified to use HeapSafe. These programs
+can be found:</p>
+<blockquote>
+<ul class="simple">
+<li>in the <tt class="docutils literal"><span class="pre">test</span></tt> directory in HeapSafe's source tarball</li>
+<li>at <a class="reference" href="http://memory.intel-research.net/files/examples.tar.gz">http://memory.intel-research.net/files/examples.tar.gz</a></li>
+</ul>
+</blockquote>
+<p><tt class="docutils literal"><span class="pre">cfrac</span></tt> is a program for factoring arbitrary size integers, e.g.,</p>
+<pre class="literal-block">
+.../test/original-cfrac$ ./cfrac 327905606740421458831903
+327905606740421458831903 = 349394839499 * 938495849597
+</pre>
+<div class="section">
+<h3><a class="toc-backref" href="#id25" id="building-with-heapsafe" name="building-with-heapsafe">5.1.1&nbsp;&nbsp;&nbsp;Building with HeapSafe</a></h3>
+<p>Starting from <tt class="docutils literal"><span class="pre">original-cfrac</span></tt>, we modify the <tt class="docutils literal"><span class="pre">CC=</span></tt> line in the <tt class="docutils literal"><span class="pre">Makefile</span></tt>
+to read:</p>
+<pre class="literal-block">
+CC    = ivycc --heapsafe -include hslib.h --hs-debug --warn-typeof-char
+</pre>
+<p>Because we will be debugging the code, we specify <tt class="docutils literal"><span class="pre">--hsdebug</span></tt> (and
+also remove the <tt class="docutils literal"><span class="pre">-O3</span></tt> option from the <tt class="docutils literal"><span class="pre">CFLAGS=</span></tt> line, to make
+debugging more convenient). Remember that the <tt class="docutils literal"><span class="pre">-warn-typeof-char</span></tt> option
+helps detect problems with arguments to <tt class="docutils literal"><span class="pre">memcpy</span></tt> and <tt class="docutils literal"><span class="pre">free</span></tt>.</p>
+<p>Compiling the modified project gives the following warnings, which we'll
+investigate later:</p>
+<pre class="literal-block">
+pio.c:44: Warning: type of 'char' requested
+pio.c:60: Warning: type of 'char' requested
+pio.c:93: Warning: type of 'char' requested
+ptoa.c:62: Warning: type of 'char' requested
+pcfrac.c:432: Warning: type of 'char' requested
+</pre>
+<p>No errors are reported and no adjust functions need to be written by
+hand, so we can just run the resulting program:</p>
+<pre class="literal-block">
+.../heapsafe/test/original-cfrac$ ./cfrac 23551
+23551 = 11 * 2141
+</pre>
+<p>but if we set the <tt class="docutils literal"><span class="pre">HEAPSAFE</span></tt> environment variable to <tt class="docutils literal"><span class="pre">log</span></tt>, we see
+there are some bad frees:</p>
+<pre class="literal-block">
+.../heapsafe/test/original-cfrac$ export HEAPSAFE=log
+*** use 'setenv HEAPSAFE log' if using tcsh
+*** all subsequent examples assume HEAPSAFE=log
+.../heapsafe/test/original-cfrac$ ./cfrac 23551
+23551 = 11 * 2141
+Log for ./cfrac 23551
+------------------------------------------------------------------
+...
+531 bad frees
+</pre>
+<p>We didn't set the <tt class="docutils literal"><span class="pre">forcefree</span></tt> option as the memory leaks due to the
+bad frees do not prevent the program from running. In general,
+specifying <tt class="docutils literal"><span class="pre">forcefree</span></tt> leads to more innacurate bad free reports,
+as the pointer(s) that prevented the first free will prevent any
+subsequent frees that reuse the same memory. During debugging, it's
+best to only specify <tt class="docutils literal"><span class="pre">forcefree</span></tt> if necessary.</p>
+</div>
+<div class="section">
+<h3><a class="toc-backref" href="#id26" id="investigating-the-warnings" name="investigating-the-warnings">5.1.2&nbsp;&nbsp;&nbsp;Investigating the Warnings</a></h3>
+<p>The five warnings reported by HeapSafe are all benign:</p>
+<blockquote>
+<ul>
+<li><p class="first">The first three warnings turn out to be deallocations of <tt class="docutils literal"><span class="pre">char</span></tt>
+arrays in pio.c.</p>
+<pre class="literal-block">
+pio.c:44: Warning: type of 'char' requested
+pio.c:60: Warning: type of 'char' requested
+pio.c:93: Warning: type of 'char' requested
+</pre>
+</li>
+<li><p class="first">The warning in ptoa.c related to copying parts of a string with <tt class="docutils literal"><span class="pre">memmove</span></tt>.</p>
+<pre class="literal-block">
+ptoa.c:62: Warning: type of 'char' requested
+</pre>
+</li>
+<li><p class="first">Finally, the warning in pcfrac.c is for an initialisation of an array of
+type <tt class="docutils literal"><span class="pre">solnvec</span></tt>, which turns out to be an array of characters.</p>
+<pre class="literal-block">
+pcfrac.c:432: Warning: type of 'char' requested
+</pre>
+</li>
+</ul>
+</blockquote>
+<p>Having investigated all these warnings, we remove the <tt class="docutils literal"><span class="pre">--warn-typeof-char</span></tt>
+option from the <tt class="docutils literal"><span class="pre">Makefile</span></tt>.</p>
+</div>
+<div class="section">
+<h3><a class="toc-backref" href="#id27" id="fixing-the-bad-frees" name="fixing-the-bad-frees">5.1.3&nbsp;&nbsp;&nbsp;Fixing the Bad Frees</a></h3>
+<p>It's now time to look into the bad frees, using <tt class="docutils literal"><span class="pre">gdb</span></tt>:</p>
+<pre class="literal-block">
+.../heapsafe/test/original-cfrac$ gdb cfrac
+(gdb) b forcefree
+Breakpoint 1 at 0x165c3: file heapsafe_libc_debug.c, line 5654.
+(gdb) r 23551
+Starting program: .../cfrac 23551
+
+Breakpoint 1, forcefree (h=0x21808040) at heapsafe_libc_debug.c:5654
+(gdb) bt
+#0  forcefree (h=0x21808040) at heapsafe_libc_debug.c:5654
+#1  0x0001380f in rcfree (hdr=0x21808040) at heapsafe_libc_debug.c:4328
+#2  0x00016ab7 in hs_typed_free (pp=0x21808050, t=0) at heapsafe_libc_debug.c:5841
+#3  0x000034a7 in pfree (u=0x21808050) at pops.c:144
+#4  0x000081a2 in atop (chp=0xbffff955 &quot;&quot;) at precision.h:62
+#5  0x00002eb2 in main (argc=2, argv=0xbffff870) at cfrac.c:224
+(gdb) p hsinfo(h)
+[0x21808040 in O:0x21808050/12 (A:pops.c:102)]
+#R:[0xbffff778 in local 0xbffff778/4] to 0x21808050, W:precision.h:72
+</pre>
+<p>The first bad free is for object with address 0x21808050 <a class="footnote-reference" href="#id4" id="id6" name="id6">[2]</a>. It's
+referenced from a 4-byte local at address 0xbffff778, which was last
+written at precision.h:72 (in an inline function called
+<tt class="docutils literal"><span class="pre">psetq</span></tt>). Generally, the easiest way to find references from locals
+is to use gdb's <tt class="docutils literal"><span class="pre">bt</span> <span class="pre">full</span></tt> command. Using that, we find that the
+local variable referencing 0x21808050 is <tt class="docutils literal"><span class="pre">clump</span></tt>, in the <tt class="docutils literal"><span class="pre">atop</span></tt>
+function.</p>
+<table class="docutils footnote" frame="void" id="id7" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a name="id7">[4]</a></td><td>The 0x21808040 value for <tt class="docutils literal"><span class="pre">h</span></tt> passed to <tt class="docutils literal"><span class="pre">forcefree</span></tt> is the address
+of the object's debug header.</td></tr>
+</tbody>
+</table>
+<p>Walking up the call stack, we see we're at a call to
+<tt class="docutils literal"><span class="pre">pdestroy(clump)</span></tt> in <tt class="docutils literal"><span class="pre">atop</span></tt>. Further investigation reveals that
+<tt class="docutils literal"><span class="pre">pdestroy</span></tt> is a function that decrements the reference counts of
+arbitrary precision integers and deallocates them when the count is
+zero (note that these are cfrac's reference counts, not
+HeapSafe's...).</p>
+<p>HeapSafe is not allowing the free, because <tt class="docutils literal"><span class="pre">clump</span></tt> still points to
+the object after the call to <tt class="docutils literal"><span class="pre">pdestroy</span></tt> (<tt class="docutils literal"><span class="pre">clump</span></tt> is a local
+variable, but it's address was taken so it is considered live until
+the end of <tt class="docutils literal"><span class="pre">atop</span></tt>). A bit of examination of the code shows that
+<tt class="docutils literal"><span class="pre">pdestroy</span></tt> is used to get rid of a reference, so it's reasonable to
+have it zero it out too. So we'll change pdestroy to zero it's argument,
+somewhat like HS_ZFREE. The old code for <tt class="docutils literal"><span class="pre">pdestroy</span></tt> is</p>
+<pre class="literal-block">
+static inline void pdestroy(precision u) {
+   if (u != pUndef &amp;&amp; --(*(prefc *) u) == 0) pfree(u);
+}
+</pre>
+<p>which we replace with</p>
+<pre class="literal-block">
+#define pdestroy(u) \
+  do { precision __tmp = (u); u = 0; actual_pdestroy(__tmp); } \
+  while (0)
+static inline void actual_pdestroy(precision u) {
+   if (u != pUndef &amp;&amp; --(*(prefc *) u) == 0) pfree(u);
+}
+</pre>
+<p>With this change, we have only 8 bad frees left:</p>
+<pre class="literal-block">
+.../test/original-cfrac $ ./cfrac 23551
+23551 = 11 * 2141
+...
+8 bad frees
+</pre>
+<p>Returning to gdb</p>
+<pre class="literal-block">
+(gdb) r 23551
+Starting program: .../cfrac 23551
+
+Breakpoint 1, forcefree (h=0x21808840) at heapsafe_libc_debug.c:5654
+(gdb) p hsinfo(h)
+[0x21808840 in O:0x21808850/12 (A:pcfrac.c:76)]
+#R:[0x218088e0 in O:0x218088d0/44 (A:pcfrac.c:166)] to 0x21808850, W:pcfrac.c:177
+</pre>
+<p>There's a reference to 0x21808850 (allocated at pcfrac.c:76) from heap
+object 0x218088d0 (allocated at pcfrac.c:166). The reference was
+written at pcfrac.c:177. Walking up the call stack, we see that we're
+in function <tt class="docutils literal"><span class="pre">freeSoln</span></tt> in pcfrac.c, and that we're doing:</p>
+<pre class="literal-block">
+free(p-&gt;e);                   /* BitVector */
+free(p);
+</pre>
+<p><tt class="docutils literal"><span class="pre">p-&gt;e</span></tt> is 0x21808850 and <tt class="docutils literal"><span class="pre">p</span></tt> is (unsurprisingly) the 0x218088d0
+object with the remaining reference to <tt class="docutils literal"><span class="pre">p-&gt;e</span></tt>.</p>
+<p>There are two obvious ways to change this code for HeapSafe: use
+HS_ZFREE(p-&gt;e), or wrap the two frees in a delayed free scope. Let's
+do the latter:</p>
+<pre class="literal-block">
+hs_delayed_free_start();
+free(p-&gt;e);                   /* BitVector */
+free(p);
+hs_delayed_free_end();
+</pre>
+<p>Before recompiling, let's check the next bad free:</p>
+<pre class="literal-block">
+(gdb) c
+Continuing
+
+Breakpoint 1, forcefree (h=0x218088c0) at heapsafe_libc_debug.c:5654
+(gdb) p hsinfo(h)
+[0x218088c0 in O:0x218088d0/44 (A:pcfrac.c:166)]
+#R:[0x21808058 in O:0x21808050/44 (A:pcfrac.c:513)] to 0x218088d0, W:pcfrac.c:627
+</pre>
+<p>The free of <tt class="docutils literal"><span class="pre">p</span></tt> failed too, due to a reference from 0x21808050 allocated at
+pcfrac.c:513, which is</p>
+<pre class="literal-block">
+b      = (SolnPtr *) malloc(bsize);
+</pre>
+<p>Walking up the call chain, we're currently in pcfrac.c at:</p>
+<pre class="literal-block">
+if (b != (SolnPtr *) 0) for (j = 0; j &lt;= m; j++) freeSoln(b[j]);
+</pre>
+<p>So we're freeing a bunch of solutions in array <tt class="docutils literal"><span class="pre">b</span></tt>. We could
+simply zero-out the elements of array <tt class="docutils literal"><span class="pre">b</span></tt> before calling freeSoln:</p>
+<pre class="literal-block">
+if (b != (SolnPtr *) 0)
+  for (j = 0; j &lt;= m; j++)
+    {
+      SolnPtr p = b[j];
+      b[j] = NULL;
+      freeSoln(p);
+    }
+</pre>
+<p>but this is not so nice. Presumably <tt class="docutils literal"><span class="pre">b</span></tt> is going to be freed or
+reused sometime soon, as it contains all these pointers to deallocated
+memory. But after investigation, we see there's no free of <tt class="docutils literal"><span class="pre">b</span></tt> (a local variable),
+which means <tt class="docutils literal"><span class="pre">cfrac</span></tt> has a minor leak. Let's fix the leak:</p>
+<pre class="literal-block">
+if (b != (SolnPtr *) 0)
+  {
+    for (j = 0; j &lt;= m; j++) freeSoln(b[j]);
+    free(b);
+  }
+</pre>
+<p>Now we can simply wrap all this code in a delayed free scope:</p>
+<pre class="literal-block">
+if (b != (SolnPtr *) 0)
+  {
+    hs_delayed_free_start();
+    for (j = 0; j &lt;= m; j++) freeSoln(b[j]);
+    free(b);
+    hs_delayed_free_end();
+  }
+</pre>
+<p>When we recompile and run, we get:</p>
+<pre class="literal-block">
+../test/original-cfrac $ ./cfrac 23551
+23551 = 11 * 2141
+...
+0 bad frees
+</pre>
+<p>Yeah!</p>
+<p>We might think the first delayed free scope we added is redundant
+(it's encompassed by the second one), but if we remove it we get 2 bad
+frees.  It turns out <tt class="docutils literal"><span class="pre">freeSoln</span></tt> is also called from <tt class="docutils literal"><span class="pre">freeSolns</span></tt>, so it still
+needs the delayed free scope.</p>
+<p>Checking <tt class="docutils literal"><span class="pre">cfrac</span></tt> with more inputs reveals no more bad frees:</p>
+<pre class="literal-block">
+../test/original-cfrac $ ./cfrac 1000000001930000000057
+1000000001930000000057 = 100000000003 * 10000000019
+...
+0 bad frees
+../test/original-cfrac $ ./cfrac 327905606740421458831903
+327905606740421458831903 = 349394839499 * 938495849597
+...
+0 bad frees
+</pre>
+<p>It looks like we're done :-)</p>
+</div>
+<div class="section">
+<h3><a class="toc-backref" href="#id28" id="improving-cfrac-s-performance" name="improving-cfrac-s-performance">5.1.4&nbsp;&nbsp;&nbsp;Improving cfrac's Performance</a></h3>
+<p>We may still be concerned by performance. Let's check HeapSafe's
+impact on <tt class="docutils literal"><span class="pre">cfrac</span></tt>'s performance. We remove the <tt class="docutils literal"><span class="pre">--hsdebug</span></tt> and
+readd the <tt class="docutils literal"><span class="pre">-O3</span></tt> options in the <tt class="docutils literal"><span class="pre">Makefile</span></tt>. We get (all times are
+measured on a 2.33GHz Intel(R) Xeon(R) 5140):</p>
+<pre class="literal-block">
+../test/original-cfrac $ ./cfrac 2113338336658048720145358906686592706357
+2113338336658048720145358906686592706357 = 47806007825827702811 * 44206542917317083887
+
+Log for ./cfrac 2113338336658048720145358906686592706357
+------------------------------------------------------------------
+cputime: 14.40
+</pre>
+<p>And on the original code:</p>
+<pre class="literal-block">
+$ time ./cfrac 2113338336658048720145358906686592706357
+2113338336658048720145358906686592706357 = 47806007825827702811 * 44206542917317083887
+
+real    0m11.450s
+user    0m11.449s
+</pre>
+<p>However, this is not quite comparing like with like, as HeapSafe is
+built over Doug Lea's malloc implementation (v2.8.3), which is not the
+same as Linux's default malloc. If we use this malloc with the
+original code, we get an execution time of 10.7s.</p>
+<p>The actual slowdown is noticeable (35%). If we compile with --hslib=stats,
+to get some memory allocation statistics</p>
+<pre class="literal-block">
+55558848 allocations, 55558848 frees (8427 scoped)
+1665295803 actual bytes
+max actual memory use: 547925
+</pre>
+<p>we see this program is allocating ~1600MB of data (&quot;actual bytes&quot;). With
+HeapSafe, all this has to be zeroed first - maybe this isn't necessary?</p>
+<p>A bit of investigation reveals that most of cfrac's allocation is for
+big integers, occurring at the <tt class="docutils literal"><span class="pre">palloc</span></tt> function in pops.c. We can replace</p>
+<pre class="literal-block">
+w = (precision) allocate(PrecisionSize + sizeof(digit) * size);
+</pre>
+<p>by</p>
+<pre class="literal-block">
+w = (precision) HS_ARRAYALLOC(char, PrecisionSize + sizeof(digit) * size);
+</pre>
+<p>because the <tt class="docutils literal"><span class="pre">precision</span></tt> type contains no pointers (<tt class="docutils literal"><span class="pre">precision</span></tt> is
+a type with a variable-sized array at the end, so we have to cheat on
+the type we pass to <tt class="docutils literal"><span class="pre">HS_ARRAYALLOC</span></tt>). With this change, runtime
+drops to 13.74s from 14.4s (overhead is now 28%).</p>
+<p>Finally, we note that several very-commonly-called functions
+(<tt class="docutils literal"><span class="pre">palloc</span></tt>, <tt class="docutils literal"><span class="pre">pnew</span></tt>, <tt class="docutils literal"><span class="pre">pparmq</span></tt>, <tt class="docutils literal"><span class="pre">presult</span></tt>) cannot free memory. We
+add <tt class="docutils literal"><span class="pre">hs_nofree</span></tt> qualifiers to them. We also have to add
+<tt class="docutils literal"><span class="pre">hs_nofree</span></tt> to <tt class="docutils literal"><span class="pre">errorp</span></tt> which is called by <tt class="docutils literal"><span class="pre">palloc</span></tt> to handle
+out-of-memory conditions. Execution time drops to 13.18s and overhead
+is now a reasonable 23%.</p>
+</div>
+</div>
+</div>
+<div class="section">
+<h1><a class="toc-backref" href="#id29" id="heapsafe-reference" name="heapsafe-reference">6&nbsp;&nbsp;&nbsp;HeapSafe Reference</a></h1>
+<p>This section presents the HeapSafe language extensions and runtime
+library. It also briefly discusses how to compile a program modified
+for HeapSafe without HeapSafe, and the HEAPSAFE environment variable
+which is used to set runtime options for HeapSafe programs. It does
+not discuss the HeapSafe-specific options to <tt class="docutils literal"><span class="pre">ivycc</span></tt> -- these are
+covered in the <tt class="docutils literal"><span class="pre">ivycc(1)</span></tt> man page.</p>
+<div class="section">
+<h2><a class="toc-backref" href="#id30" id="compiling-without-heapsafe" name="compiling-without-heapsafe">6.1&nbsp;&nbsp;&nbsp;Compiling without HeapSafe</a></h2>
+<p>One of the goals of HeapSafe is to allow programs written for HeapSafe
+to be compiled and run with any C compiler. All HeapSafe files must
+<tt class="docutils literal"><span class="pre">#include</span> <span class="pre">&lt;heapsafe.h&gt;</span></tt>. When compiled with a regular C compiler
+this header file defines HeapSafe's library and language extensions
+in terms of regular C operations. The only differences between the
+resulting program and one compiled with HeapSafe are:</p>
+<blockquote>
+<ul>
+<li><p class="first">HeapSafe detects bad frees.</p>
+</li>
+<li><p class="first">Delayed frees can hide errors: If a program frees an object within
+a delayed free scope, and then erroneously accesses the object
+before the delayed scope has ended then HeapSafe will hide this
+error. If the program is run without HeapSafe then it is possible
+that the program will access a newly allocated object.</p>
+<p>We may in the future provide an unchecked implementation of delayed
+free scopes to avoid this issue.</p>
+</li>
+</ul>
+</blockquote>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id31" id="language-extensions" name="language-extensions">6.2&nbsp;&nbsp;&nbsp;Language Extensions</a></h2>
+<div class="section">
+<h3><a class="toc-backref" href="#id32" id="type-qualifiers" name="type-qualifiers">6.2.1&nbsp;&nbsp;&nbsp;Type Qualifiers</a></h3>
+<p>HeapSafe provides a few extra type qualifiers to handle various issues
+related to reference counting:</p>
+<blockquote>
+<ul>
+<li><p class="first"><tt class="docutils literal"><span class="pre">hs_norc</span></tt>: This qualifier can be added to any pointer type to
+disable reference counting, e.g., <tt class="docutils literal"><span class="pre">int</span> <span class="pre">*hs_norc</span> <span class="pre">x</span></tt>. It can be
+useful when interacting with code not compiled by HeapSafe (see
+<a class="reference" href="#interactions-with-external-code">Interactions with External Code</a>) or in special circumstances
+where you want to keep dangling pointers to deallocated memory
+(this is of course unsafe).</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">hs_untyped</span></tt>: This qualifier can be added to a function
+declaration to get a warning whenever the function is called with
+arguments that contain pointers. For instance, the <tt class="docutils literal"><span class="pre">heapsafe.h</span></tt>
+header file includes:</p>
+<pre class="literal-block">
+void *memcpy(void *to, const void *from, size_t s) hs_untyped;
+</pre>
+<p>to get warnings when <tt class="docutils literal"><span class="pre">memcpy</span></tt> is used to copy pointers. Adding
+<tt class="docutils literal"><span class="pre">hs_untyped</span></tt> to <tt class="docutils literal"><span class="pre">memcpy</span></tt>-like functions in external libraries
+can be helpful when converting code to HeapSafe.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">hs_nofree</span></tt>: Placing this qualifier on functions that perform no
+memory deallocation can improve performance. A function qualified
+with <tt class="docutils literal"><span class="pre">hs_nofree</span></tt> can only call other functions qualified with
+<tt class="docutils literal"><span class="pre">hs_nofree</span></tt>. See <a class="reference" href="#improving-performance">Improving Performance</a> for more details.</p>
+</li>
+</ul>
+</blockquote>
+</div>
+<div class="section">
+<h3><a class="toc-backref" href="#id33" id="runtime-type-information" name="runtime-type-information">6.2.2&nbsp;&nbsp;&nbsp;Runtime Type Information</a></h3>
+<p>The <tt class="docutils literal"><span class="pre">hs_typeof</span></tt> language extension returns the adjust function for a
+given type, e.g., <tt class="docutils literal"><span class="pre">hs_typeof(int</span> <span class="pre">*)</span></tt>. It can also be applied to an
+expression, in which case it returns the adjust function for the type
+of the expression (note that unlike C's <tt class="docutils literal"><span class="pre">sizeof</span></tt>, parentheses are
+required around an expression, i.e., <tt class="docutils literal"><span class="pre">hs_typeof</span> <span class="pre">x+2</span></tt> will produce a
+compile-time error).</p>
+<p>The result of <tt class="docutils literal"><span class="pre">hs_typeof</span></tt> has type <tt class="docutils literal"><span class="pre">hs_type_t</span></tt>, defined as:</p>
+<pre class="literal-block">
+typedef void (*hs_type_t)(void *x, int by, size_t s) hs_nofree;
+</pre>
+<p>If the type contains no pointer, <tt class="docutils literal"><span class="pre">hs_typeof</span></tt> returns <tt class="docutils literal"><span class="pre">((hs_type_t)0)</span></tt>.
+Applying <tt class="docutils literal"><span class="pre">hs_typeof</span></tt> to an array type returns the same result as
+applying it to the array's base type (e.g., <tt class="docutils literal"><span class="pre">hs_typeof(struct</span> <span class="pre">X</span> <span class="pre">[])</span> <span class="pre">==</span>
+<span class="pre">hs_typeof(struct</span> <span class="pre">X)</span></tt>).</p>
+<p>An adjust function for type <em>T</em> takes three arguments:</p>
+<blockquote>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">x</span></tt> is a pointer to a memory block containing one or more
+objects of type <em>T</em></li>
+<li><tt class="docutils literal"><span class="pre">by</span></tt> must be +1 or -1</li>
+<li><tt class="docutils literal"><span class="pre">s</span></tt> indirectly specifies the number of objects referenced by
+<tt class="docutils literal"><span class="pre">x</span></tt>:<ul>
+<li>if <tt class="docutils literal"><span class="pre">s</span> <span class="pre">==</span> <span class="pre">0</span></tt>, then <tt class="docutils literal"><span class="pre">x</span></tt> refers to a single object</li>
+<li>otherwise, <tt class="docutils literal"><span class="pre">x</span></tt> refers to however many (but at least one)
+objects of type <em>T</em> fit in <tt class="docutils literal"><span class="pre">s</span></tt> bytes (<tt class="docutils literal"><span class="pre">s</span></tt> need not be the
+size to an exact number of objects)</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<p>The adjust function must adjust the reference counts for the object(s)
+pointed to by pointers in the objects at <tt class="docutils literal"><span class="pre">x</span></tt> by amount <tt class="docutils literal"><span class="pre">by</span></tt>. For
+instance, if the adjust function for type:</p>
+<pre class="literal-block">
+struct doubly_linked_list {
+  int value;
+  struct doubly_linked_list *prev, *next;
+};
+</pre>
+<p>is called as follows[#]_:</p>
+<pre class="literal-block">
+struct doubly_linked_list elems[2];
+
+(hs_typeof(struct doubly_linked_list))(x, +1, 1 + sizeof elems);
+</pre>
+<p>then the reference counts of the objects pointed to by
+<tt class="docutils literal"><span class="pre">elems[0].prev</span></tt>, <tt class="docutils literal"><span class="pre">elems[0].next</span></tt>, <tt class="docutils literal"><span class="pre">elems[1].prev</span></tt>,
+<tt class="docutils literal"><span class="pre">elems[1].next</span></tt> will be increased by one. Note that the <tt class="docutils literal"><span class="pre">1</span> <span class="pre">+</span></tt>
+applied to <tt class="docutils literal"><span class="pre">sizeof</span> <span class="pre">elems</span></tt> had no effect as a <tt class="docutils literal"><span class="pre">struct</span>
+<span class="pre">doubly_linked_list</span></tt> is bigger than one byte.</p>
+<table class="docutils footnote" frame="void" id="id8" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a name="id8">[5]</a></td><td>Adjust functions calls are normally only made in the HeapSafe
+library and in the code generated by the HeapSafe compiler.</td></tr>
+</tbody>
+</table>
+<div class="section">
+<h4><a class="toc-backref" href="#id34" id="automatically-generated-adjust-functions" name="automatically-generated-adjust-functions">6.2.2.1&nbsp;&nbsp;&nbsp;Automatically Generated Adjust Functions</a></h4>
+<p>HeapSafe will automatically generate adjust functions for:</p>
+<blockquote>
+<ul class="simple">
+<li>all pointer types</li>
+<li><tt class="docutils literal"><span class="pre">struct</span></tt> types, as long as for all unions contained (i.e.,
+directly embedded, not accessed via a pointer) in the <tt class="docutils literal"><span class="pre">struct</span></tt>:<ul>
+<li>the <tt class="docutils literal"><span class="pre">union</span></tt> does not contain any pointers,</li>
+<li>or, all the pointers in the <tt class="docutils literal"><span class="pre">union</span></tt> have the <tt class="docutils literal"><span class="pre">hs_norc</span></tt> qualifier</li>
+<li>or, all the fields in the <tt class="docutils literal"><span class="pre">union</span></tt> are pointers</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<p>For structures that end in open arrays, i.e., structures like:</p>
+<pre class="literal-block">
+struct open_array {
+  int length;
+  void *pointers[];
+};
+</pre>
+<p>HeapSafe assumes that the memory block passed to the adjust function
+refers to a single object, i.e., that the open array extends to the
+end of the memory block (whose size is specified by the adjust
+function's <tt class="docutils literal"><span class="pre">s</span></tt> argument). If this is not true, you will have to
+write your own adjust function.</p>
+</div>
+<div class="section">
+<h4><a class="toc-backref" href="#id35" id="writing-adjust-functions" name="writing-adjust-functions">6.2.2.2&nbsp;&nbsp;&nbsp;Writing Adjust Functions</a></h4>
+<p>When HeapSafe cannot generate an adjust function, you have to write
+your own - this can only occur for structures or unions. Furthermore,
+if you wish, you can always write adjust functions by hand, e.g., if
+the automatically generated one is not appropriate.</p>
+<p>If the type needing an adjust function is <tt class="docutils literal"><span class="pre">struct</span> <span class="pre">T</span></tt> or <tt class="docutils literal"><span class="pre">union</span> <span class="pre">T</span></tt>,
+the adjust function must be called <tt class="docutils literal"><span class="pre">rc_adjust_T</span></tt>. It must be
+declared prior to where the adjust function is first needed. So for
+instance:</p>
+<pre class="literal-block">
+struct strange {
+  enum { k_integer, k_pointer } key;
+  union {
+    int integer;
+    void *pointer;
+  } values;
+} *a;
+
+void f(void)
+{
+  hs_typed_free(a, hs_typeof(struct strange));
+}
+
+void rc_adjust_strange(void *x, int by, size_t s)
+{
+  ...
+}
+</pre>
+<p>will report an error as <tt class="docutils literal"><span class="pre">rc_adjust_strange</span></tt> is not declared when
+<tt class="docutils literal"><span class="pre">hs_typeof</span></tt> is used. Adding a declaration for:</p>
+<pre class="literal-block">
+void rc_adjust_strange(void *x, int by, size_t s);
+</pre>
+<p>at the start of the file fixes the problem.</p>
+<p>The typical adjust function for type <em>T</em> has the following format:</p>
+<pre class="literal-block">
+#ifdef __HEAPSAFE__
+void rc_adjust_T(void *x, int by, size_t s)
+{
+  struct T *p = x; /* or, in unusual cases, union T *p */
+
+  RC_ADJUST_START(p, s);
+  ... call RC_ADJUST(p-&gt;f, by) on all pointer fields f of T ...
+  RC_ADJUST_END(p, sizeof *p);
+}
+#endif
+</pre>
+<p>The <tt class="docutils literal"><span class="pre">#ifdef</span> <span class="pre">__HEAPSAFE__</span></tt> ensures the adjust function is only
+compiled if HeapSafe is used. The <tt class="docutils literal"><span class="pre">RC_ADJUST_START</span></tt> and
+<tt class="docutils literal"><span class="pre">RC_ADJUST_END</span></tt> take care of the looping over the one or more
+objects of type <em>T</em>. The adjust function for <tt class="docutils literal"><span class="pre">struct</span> <span class="pre">strange</span></tt> is:</p>
+<pre class="literal-block">
+#ifdef __HEAPSAFE__
+void rc_adjust_strange(void *x, int by, size_t s)
+{
+  struct strange *p = x;
+
+  RC_ADJUST_START(p, s);
+  if (p-&gt;key == k_pointer)
+    RC_ADJUST(p-&gt;values.pointer, by); break;
+  RC_ADJUST_END(p, sizeof *p);
+}
+#endif
+</pre>
+<p>Note that writing adjust functions for unions not embedded in
+structures may be tricky, as there is no obvious source of information
+on which field is currently selected. You may need to modify your
+program a little if it needs adjust functions for unions (e.g., if
+it's copying union values).</p>
+</div>
+</div>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id36" id="library" name="library">6.3&nbsp;&nbsp;&nbsp;Library</a></h2>
+<div class="section">
+<h3><a class="toc-backref" href="#id37" id="allocation-and-deallocation" name="allocation-and-deallocation">6.3.1&nbsp;&nbsp;&nbsp;Allocation and Deallocation</a></h3>
+<p>HeapSafe's core allocation and deallocation functions are:</p>
+<pre class="literal-block">
+void *hs_malloc(size_t n);
+void *hs_calloc(size_t n, size_t s);
+void *hs_typed_realloc(void *p, hs_type_t t, size_t n);
+void hs_typed_free(const void *p, hs_type_t t);
+</pre>
+<p>These functions behave like their standard C counterparts, except
+that:</p>
+<blockquote>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">hs_malloc</span></tt> clears the allocated memory</li>
+<li><tt class="docutils literal"><span class="pre">hs_typed_free</span></tt> and <tt class="docutils literal"><span class="pre">hs_typed_realloc</span></tt> take an adjust function
+argument that describes the type being de/re-allocated</li>
+<li>deallocation is delayed if it occurs inside a delayed free scope
+(see below)</li>
+</ul>
+</blockquote>
+<p>HeapSafe defines four macros that simplify using the deallocation
+functions:</p>
+<pre class="literal-block">
+#define HS_REALLOC(p, n) hs_typed_realloc((p), hs_typeof(*(p)), (n))
+#define HS_FREE(p) hs_typed_free((p), hs_typeof(*(p)))
+#define HS_ZFREE(x) ...
+#define HS_ZREALLOC(x, size) ...
+</pre>
+<p><tt class="docutils literal"><span class="pre">HS_FREE</span></tt> and <tt class="docutils literal"><span class="pre">HS_REALLOC</span></tt> fill in the adjust function based on
+the static type of the object being deallocated. <tt class="docutils literal"><span class="pre">HS_ZFREE</span></tt> and
+<tt class="docutils literal"><span class="pre">HS_ZREALLOC</span></tt> do the same, but also zero-out their argument.</p>
+<p>The overhead of clearing memory in <tt class="docutils literal"><span class="pre">hs_malloc</span></tt> can be noticeable in
+programs performing a lot of allocation. Because HeapSafe only depends
+for correctness on pointers being cleared, performance can sometimes
+be improved by using HeapSafe's type-sensitive allocation macros:</p>
+<pre class="literal-block">
+#define HS_ALLOC(type) ...
+#define HS_ARRAYALLOC(type, n) ...
+</pre>
+<p><tt class="docutils literal"><span class="pre">HS_ALLOC</span></tt> allocates and returns a pointer to one object of type
+<tt class="docutils literal"><span class="pre">type</span></tt>, with all pointers zeroed-out. <tt class="docutils literal"><span class="pre">HS_ARRAYALLOC</span></tt> behaves
+identically, except that it allocates an array of <tt class="docutils literal"><span class="pre">n</span></tt> objects of
+type <tt class="docutils literal"><span class="pre">type</span></tt>.</p>
+</div>
+<div class="section">
+<h3><a class="toc-backref" href="#id38" id="id9" name="id9">6.3.2&nbsp;&nbsp;&nbsp;Delayed Free Scopes</a></h3>
+<p>The following two functions mark the start and end of delayed free
+scopes:</p>
+<pre class="literal-block">
+void hs_delayed_free_start(void);
+void hs_delayed_free_end(void);
+</pre>
+<p>All deallocations (from calls to <tt class="docutils literal"><span class="pre">hs_typed_free</span></tt> and
+<tt class="docutils literal"><span class="pre">hs_typed_realloc</span></tt>) that occur within a delayed free scope are
+delayed until the scope ends.  When scopes are nested, deallocations
+are delayed until the end of the outermost scope.</p>
+<p>Checks for bad frees are also delayed until the end of the outermost
+scope, and pointers between the deallocated objects do not count
+towards the objects reference counts (i.e., you can deallocate two
+objects that point to each other within a delayed free scope).</p>
+</div>
+<div class="section">
+<h3><a class="toc-backref" href="#id39" id="type-aware-memory-functions" name="type-aware-memory-functions">6.3.3&nbsp;&nbsp;&nbsp;Type-aware Memory Functions</a></h3>
+<p>The following three functions replace C's <tt class="docutils literal"><span class="pre">memcpy</span></tt>, <tt class="docutils literal"><span class="pre">memmove</span></tt> and
+<tt class="docutils literal"><span class="pre">memset</span></tt> functions with versions that understand how to copy
+pointers:</p>
+<pre class="literal-block">
+void *hs_typed_memcpy(void *to, void *from, size_t s, hs_type_t t);
+void *hs_typed_memmove(void *to, void *from, size_t s, hs_type_t t);
+void *hs_typed_memset(void *to, int c, size_t s, hs_type_t t);
+</pre>
+<p>These functions behave identically to the standard C functions except
+that they take an adjust function describing the type of the objects
+being copied/set as their last argument.</p>
+<p>In many cases it is possible to use the <tt class="docutils literal"><span class="pre">HS_MEMSET</span></tt>, <tt class="docutils literal"><span class="pre">HS_MEMMOVE</span></tt>
+and <tt class="docutils literal"><span class="pre">HS_MEMCPY</span></tt> macros that automate the selection of the adjust
+function based on the static type of the first argument:</p>
+<pre class="literal-block">
+#define HS_MEMCPY(to, from, size)                             \
+  hs_typed_memcpy((to), (from), (size), hs_typeof(*(to)))
+#define HS_MEMMOVE(to, from, size)                            \
+  hs_typed_memmove((to), (from), (size), hs_typeof(*(to)))
+#define HS_MEMSET(to, c, size)                                \
+  hs_typed_memset((to), (c), (size), hs_typeof(*(to)))
+</pre>
+<p>When modifying the selected field of an <tt class="docutils literal"><span class="pre">union</span></tt> containing pointers
+(see <a class="reference" href="#modifying-unions">Modifying Unions</a>) it is necessary to zero-out the union to
+avoid corrupting reference-counts. The following function can be used
+to simplify this process for unions contained within a larger object:</p>
+<pre class="literal-block">
+void hs_typed_mutate(void *obj, void *union_part, hs_type_t obj_t, size_t union_s);
+</pre>
+<p>The arguments to <tt class="docutils literal"><span class="pre">hs_typed_mutate</span></tt> are:</p>
+<pre class="literal-block">
+* ``obj``: the larger object containing the ``union`` to be zeroed-out
+* ``union_part``: the ``union`` to be zeroed-out
+* ``obj_t``: the adjust function for the larger object
+* ``union_s``: the size in bytes of the ``union``
+</pre>
+<p>The <tt class="docutils literal"><span class="pre">HS_MUTATE</span></tt> macro simplifies use of <tt class="docutils literal"><span class="pre">hs_typed_mutate</span></tt>:</p>
+<pre class="literal-block">
+#define HS_MUTATE(obj, union_path)                             \
+  hs_typed_mutate(&amp;(obj), &amp;(obj).union_path, hs_typeof((obj)), \
+                  sizeof((obj).union_path))
+</pre>
+<p>The <tt class="docutils literal"><span class="pre">obj</span></tt> argument is the structure containing the <tt class="docutils literal"><span class="pre">union</span></tt>, and
+<tt class="docutils literal"><span class="pre">union_path</span></tt> is the access path to reach the <tt class="docutils literal"><span class="pre">union</span></tt> field in
+<tt class="docutils literal"><span class="pre">obj</span></tt>.</p>
+</div>
+<div class="section">
+<h3><a class="toc-backref" href="#id40" id="custom-allocator-support" name="custom-allocator-support">6.3.4&nbsp;&nbsp;&nbsp;Custom Allocator Support</a></h3>
+<p>The <tt class="docutils literal"><span class="pre">HS_DESTROY</span></tt> macro simplifies implementing type-specific custom
+memory allocators in HeapSafe (see <a class="reference" href="#custom-memory-allocators">Custom Memory Allocators</a>):</p>
+<pre class="literal-block">
+#define HS_DESTROY(p) ...
+</pre>
+<p>Calling <tt class="docutils literal"><span class="pre">HS_DESTROY(p)</span></tt> zeroes out all pointers in the object
+pointed to by <tt class="docutils literal"><span class="pre">p</span></tt>, updating reference counts as necessary.</p>
+</div>
+<div class="section">
+<h3><a class="toc-backref" href="#id41" id="hslib-h-definitions" name="hslib-h-definitions">6.3.5&nbsp;&nbsp;&nbsp;hslib.h Definitions</a></h3>
+<p>The <tt class="docutils literal"><span class="pre">hslib.h</span></tt> header file simply #includes <tt class="docutils literal"><span class="pre">heapsafe.h</span></tt> and
+defines the following macros:</p>
+<pre class="literal-block">
+#define malloc hs_malloc
+#define calloc hs_calloc
+#define realloc HS_REALLOC
+#define free HS_FREE
+#define memset HS_MEMSET
+#define memcpy HS_MEMCPY
+#define memmove HS_MEMMOVE
+</pre>
+<p>These macros redefine the parts of C's standard library that are
+changed by HeapSafe in terms of HeapSafe's operations, simplifying
+conversion of programs to HeapSafe.</p>
+</div>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id42" id="heapsafe-environment-variable" name="heapsafe-environment-variable">6.4&nbsp;&nbsp;&nbsp;HEAPSAFE Environment Variable</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">HEAPSAFE</span></tt> environment variable controls some aspects of
+HeapSafe's behaviour (it is read before the program starts, so cannot
+be modified within the program). This environment variable must
+contain a series of space-separated options. Supported options are:</p>
+<blockquote>
+<ul>
+<li><p class="first"><tt class="docutils literal"><span class="pre">log</span></tt>: Print information on bad frees and other statistics.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">shortlog</span></tt>: Print the same information as <tt class="docutils literal"><span class="pre">log</span></tt> but in a
+comma-separated form suitable for pasting into a spreadsheet...</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">logfile=&lt;path&gt;</span></tt>: Print log information to <tt class="docutils literal"><span class="pre">&lt;path&gt;</span></tt>.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">forcefree</span></tt>: Objects should be deallocated even when they have a
+non-zero reference count. This compromises safety, but avoids bugs
+causing memory leaks.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">slow_realloc</span></tt>: Prevent <tt class="docutils literal"><span class="pre">realloc</span></tt> from reallocating an object
+in-place, i.e., force it to allocate a new object, copy the data
+and deallocate the old object.</p>
+<p>With this option, <tt class="docutils literal"><span class="pre">realloc</span></tt> behaves &quot;correctly&quot; within a delayed
+free scope, i.e., the &quot;old&quot; object is only deallocated when the
+scope ends. However, this can come at a very substantial
+performance penalty in programs that overuse <tt class="docutils literal"><span class="pre">realloc</span></tt>...
+Furthermore, having <tt class="docutils literal"><span class="pre">realloc</span></tt> behave correctly does not seem to
+have any obvious practical advantage.</p>
+</li>
+</ul>
+</blockquote>
+</div>
+</div>
+<div class="section">
+<h1><a class="toc-backref" href="#id43" id="programming-with-heapsafe" name="programming-with-heapsafe">7&nbsp;&nbsp;&nbsp;Programming with HeapSafe</a></h1>
+<p>In this section, we discuss various issues that arise when programming
+with HeapSafe.</p>
+<div class="section">
+<h2><a class="toc-backref" href="#id44" id="local-variables" name="local-variables">7.1&nbsp;&nbsp;&nbsp;Local Variables</a></h2>
+<p>HeapSafe has special handling for local variables:</p>
+<blockquote>
+<ul>
+<li><p class="first">All pointers in local variables are initialised to <tt class="docutils literal"><span class="pre">NULL</span></tt>
+(otherwise the first write to the pointer might corrupt some
+arbitrary reference count depending on the variable's
+(unitialised) contents).</p>
+</li>
+<li><p class="first">Local pointer variables (i.e., types like <tt class="docutils literal"><span class="pre">struct</span> <span class="pre">X</span> <span class="pre">*</span></tt>, but not
+arrays of pointers, or structures containing pointers) whose
+address is not taken are handled specially: references from these
+variables are only included in reference counts at the points <em>P</em>
+where they are live (i.e., there is a possible read of the
+variable on some code path starting at <em>P</em>).</p>
+<p>For instance, the following code will not report any bad frees:</p>
+<pre class="literal-block">
+void f(void)
+{
+  int *x = hs_malloc(sizeof(int));
+
+  *x = 22;
+  HS_FREE(x);
+
+  if (...)
+    x = hs_malloc(2 * sizeof(int));
+  else
+    x = NULL;
+}
+</pre>
+<p>At the point where <tt class="docutils literal"><span class="pre">x</span></tt> is freed, the local variable <tt class="docutils literal"><span class="pre">x</span></tt> is no
+longer live as it is reassigned on both branches of the <tt class="docutils literal"><span class="pre">if</span></tt>. If
+<tt class="docutils literal"><span class="pre">x</span></tt> was a global variable, or if <tt class="docutils literal"><span class="pre">x</span></tt>'s address was taken then
+the call to <tt class="docutils literal"><span class="pre">HS_FREE</span></tt> <strong>would</strong> report a bad free (<tt class="docutils literal"><span class="pre">HS_ZFREE</span></tt>
+could be used instead in that case).</p>
+</li>
+<li><p class="first">References from all other local variables are only removed from
+reference counts when the function they are declared in exits. So
+for instance:</p>
+<pre class="literal-block">
+void f(void)
+{
+  int *x[2];
+
+  x[0] = hs_malloc(sizeof(int));
+  x[1] = NULL;
+
+  ...
+
+  HS_FREE(x[0]);
+}
+</pre>
+<p>will report a bad free.</p>
+</li>
+</ul>
+</blockquote>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id45" id="interactions-with-external-code" name="interactions-with-external-code">7.2&nbsp;&nbsp;&nbsp;Interactions with External Code</a></h2>
+<p>HeapSafe-compiled programs can be linked with existing binary
+code. However, two issues may cause problems: sharing
+objects containing pointers between HeapSafe and non-HeapSafe code,
+and calls to <tt class="docutils literal"><span class="pre">free</span></tt>, <tt class="docutils literal"><span class="pre">setjmp</span></tt> and <tt class="docutils literal"><span class="pre">longjmp</span></tt> in
+non-HeapSafe code.</p>
+<p>If the same pointer (global variable, field of a structure or array,
+etc) is written by HeapSafe and non-HeapSafe code, then reference
+counts will be corrupted:</p>
+<blockquote>
+<ul class="simple">
+<li>the pointer overwritten by the non-HeapSafe code will not have
+its reference count decremented, leading to inaccessible objects
+having greater reference counts than they should</li>
+<li>the object referenced by the non-HeapSafe-written code will not
+have its reference count incremented, possibly leading to an
+accessible object having a zero reference count</li>
+<li>if the non-HeapSafe-written pointer is subsequently overwritten by
+HeapSafe code, its reference count will be decremented, possibly
+leading to:<ul>
+<li>a negative reference count (which will prevent deallocation)</li>
+<li>or, a zero reference count when there are actually remaining
+references</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<p>Clearly, none of these outcomes are good. HeapSafe provides two tools
+to detect these problems:</p>
+<blockquote>
+<ul class="simple">
+<li>at compile-time, the <tt class="docutils literal"><span class="pre">hs_untyped</span></tt> function qualifier can be used
+to declare functions in non-HeapSafe-compiled code which should
+not be passed pointers to objects containing pointers</li>
+<li>the debugging library's (see <a class="reference" href="#debugging-mode">Debugging Mode</a>) <tt class="docutils literal"><span class="pre">hsinfo</span></tt>
+function reports when HeapSafe-written pointers have been
+overwritten in a specific object</li>
+</ul>
+</blockquote>
+<p>There are essentially three approaches to fixing these problems:</p>
+<blockquote>
+<ul class="simple">
+<li>avoid overwriting the same pointer in HeapSafe and non-HeapSafe
+code</li>
+<li>disable reference counting (using the <tt class="docutils literal"><span class="pre">hs_norc</span></tt> type qualifier)
+for pointers overwritten by HeapSafe and non-HeapSafe code</li>
+<li>switch to compiling the non-HeapSafe code with HeapSafe (if you
+have the source code)</li>
+</ul>
+</blockquote>
+<p>Note that the following idioms do <strong>not</strong> cause major problems
+(aka incorrect reference counts):</p>
+<blockquote>
+<ul class="simple">
+<li>pointers to non-HeapSafe objects in non-HeapSafe code</li>
+<li>pointers to HeapSafe objects stored in non-HeapSafe objects -
+HeapSafe will however let you deallocate the
+reachable-from-non-HeapSafe code object</li>
+<li>pointers to non-HeapSafe objects in HeapSafe code -
+HeapSafe will even prevent deallocation of these objects
+while these pointers remain</li>
+</ul>
+</blockquote>
+<p>Or, in other words, problems arise not from pointers <em>between</em>
+HeapSafe and non-HeapSafe objects or variables, but from pointers
+<em>written by</em> both HeapSafe and non-HeapSafe code.</p>
+<p>Similar issues arise when non-HeapSafe-allocated objects are freed by
+HeapSafe code, or vice-versa. The HeapSafe library provides
+implementations of <tt class="docutils literal"><span class="pre">malloc</span></tt>, <tt class="docutils literal"><span class="pre">calloc</span></tt>, <tt class="docutils literal"><span class="pre">realloc</span></tt> and <tt class="docutils literal"><span class="pre">free</span></tt> so
+that non-HeapSafe code linked with HeapSafe code use a common memory
+allocation implementation. The <tt class="docutils literal"><span class="pre">malloc</span></tt> and <tt class="docutils literal"><span class="pre">calloc</span></tt>
+implementations behave like <tt class="docutils literal"><span class="pre">hs_malloc</span></tt> and <tt class="docutils literal"><span class="pre">hs_calloc</span></tt>
+respectively. But <tt class="docutils literal"><span class="pre">free</span></tt> and <tt class="docutils literal"><span class="pre">realloc</span></tt> behave like calling
+<tt class="docutils literal"><span class="pre">hs_free</span></tt> and <tt class="docutils literal"><span class="pre">hs_realloc</span></tt> with the adjust function argument equal
+to <tt class="docutils literal"><span class="pre">(hs_type_t)0</span></tt>, i.e., as if the freed object contains no
+pointers. This is fine as long as the objects freed by the
+non-HeapSafe code do not contain any pointers written by HeapSafe, but
+will cause problems (incorrect reference counts) otherwise. The same
+three approaches described above can be used to solve such problems.</p>
+<p>HeapSafe provides its own implementation of <tt class="docutils literal"><span class="pre">setjmp</span></tt> and <tt class="docutils literal"><span class="pre">longjmp</span></tt>
+(to remove reference counts due to pointers in local variables when
+calling <tt class="docutils literal"><span class="pre">longjmp</span></tt>). These implementations work just like the
+standard C library ones, but use a slightly larger <tt class="docutils literal"><span class="pre">jmp_buf</span></tt> storage
+area.  Code not compiled by HeapSafe that declares its own
+<tt class="docutils literal"><span class="pre">jmp_buf</span></tt> areas will not work with HeapSafe's <tt class="docutils literal"><span class="pre">setjmp</span></tt> and
+<tt class="docutils literal"><span class="pre">longjmp</span></tt> implementations.</p>
+<p>In summary, HeapSafe and non-HeapSafe code can easily coexist as long
+as (note that these conditions are true of the standard C library,
+except for <tt class="docutils literal"><span class="pre">memcpy</span></tt> and friends):</p>
+<blockquote>
+<ol class="arabic simple">
+<li>they interact only by passing non-pointer values or by sharing
+only objects containing non-pointers</li>
+<li>the non-HeapSafe code does not call <tt class="docutils literal"><span class="pre">setjmp</span></tt> and <tt class="docutils literal"><span class="pre">longjmp</span></tt></li>
+</ol>
+</blockquote>
+<p>In other cases, care must be taken to ensure that the non-HeapSafe
+code does not corrupt reference counts.</p>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id46" id="improving-performance" name="improving-performance">7.3&nbsp;&nbsp;&nbsp;Improving Performance</a></h2>
+<p>Three straightforward changes can improve the performance of code
+compiled by HeapSafe.</p>
+<p>First, some C programs use <tt class="docutils literal"><span class="pre">memset</span></tt> (or an initialisation loop) to
+explicitly zero-out the memory returned by <tt class="docutils literal"><span class="pre">malloc</span></tt>. As HeapSafe's
+allocator explicitly zeroes-out memory, you can remove these redundant
+initialisations. It might also be clearer to use <tt class="docutils literal"><span class="pre">hs_calloc</span></tt> in
+the changed code.</p>
+<p>Second, the cost of zeroing memory in allocation-intensive programs
+can be noticeable. But in fact, HeapSafe only requires that pointers
+be zeroed-out. If you replace calls to <tt class="docutils literal"><span class="pre">malloc</span></tt> by <tt class="docutils literal"><span class="pre">HS_ALLOC</span></tt> or
+<tt class="docutils literal"><span class="pre">HS_ARRAYALLOC</span></tt>, which include information on the type being
+allocated, HeapSafe will only zero-out pointers (in particular, no
+zeroing will occur if no pointers are in the allocated object). For
+instance:</p>
+<pre class="literal-block">
+struct large {
+  double x[20];
+  struct large *next;
+};
+
+void f(void)
+{
+  /* Old code was ... l = malloc(sizeof(struct large)) */
+  struct large *l = HS_ALLOC(struct large);
+  /* Only l-&gt;next is zeroed */
+  ...
+}
+</pre>
+<p>or:</p>
+<pre class="literal-block">
+char *somestr, *someoldstr;
+
+void g(void)
+{
+  /* Old code was somestr = malloc(6 + strlen(someoldstr)) */
+  somestr = HS_ARRAYALLOC(char, 6 + strlen(someoldstr));
+  /* No zeroing necessary */
+
+  sprintf(somestr, &quot;foo %s\n&quot;, someoldstr);
+}
+</pre>
+<p>The third change requires a little more effort. When HeapSafe-compiled
+calls a function, it saves the values of local pointer variables on a
+private stack, and checks this stack on deallocation attempts.[#]_
+This is cheaper than performing reference count operations on writes
+to pointers in local variables, but can still be relatively expensive
+for functions that are called a lot. If a function is called a lot,
+but never performs any deallocation, then the work of pushing local
+variables is wasted.</p>
+<table class="docutils footnote" frame="void" id="id10" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a name="id10">[6]</a></td><td>If HeapSafe were integrated in a C compiler (rather than
+working as a C-to-C compiler as today), this work could be avoided.</td></tr>
+</tbody>
+</table>
+<p>If you know that a function does not deallocate objects (directly
+or when calling another function), then you can add an <tt class="docutils literal"><span class="pre">hs_nofree</span></tt>
+qualifier. This tells HeapSafe that it does not need to save local
+pointer variables when calling the function. Functions with the
+<tt class="docutils literal"><span class="pre">hs_nofree</span></tt> qualifier can only call other functions which also have
+the qualifier - thus adding <tt class="docutils literal"><span class="pre">hs_nofree</span></tt> to one function often requires
+adding it to a group of other functions.</p>
+<p>Here's a slightly contrived example:</p>
+<pre class="literal-block">
+void add1(int *x) hs_nofree
+{
+  *x++;
+}
+
+void addn(int *x, int n) hs_nofree
+{
+  int i;
+
+  for (i = 0; i &lt; n; i++)
+    add1(x); /* HeapSafe need not save x on this call */
+}
+
+int *z;
+
+void error1(void) hs_nofree
+{
+  HS_ZFREE(z); /* This will report a compile-time error,
+                  as error1 was declared nofree */
+}
+</pre>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id47" id="custom-memory-allocators" name="custom-memory-allocators">7.4&nbsp;&nbsp;&nbsp;Custom Memory Allocators</a></h2>
+<p>Many C programs include custom memory allocators, e.g., type-specific
+allocators, region-style allocators (e.g., Apache's pools), or
+<tt class="docutils literal"><span class="pre">malloc</span></tt>-like replacements. The typical motivation for these is to
+improve performance and/or reduce space usage.[#]_ If your program
+uses custom memory allocators and you want to check memory
+management with HeapSafe, you have several options:</p>
+<blockquote>
+<ul class="simple">
+<li>You can simply disable the custom memory allocator (at least when
+using HeapSafe).</li>
+<li>If the program uses both custom and <tt class="docutils literal"><span class="pre">malloc</span></tt>, you can modify the
+custom memory allocator so that pointers in the custom-deallocated
+objects do not prevent deallocation via <tt class="docutils literal"><span class="pre">free</span></tt>.</li>
+<li>(For experts only) You can extend HeapSafe's runtime library to
+support your custom memory allocator (and in particular, check the
+safety of your custom deallocations). We hope to add features to
+HeapSafe to make this simpler.</li>
+</ul>
+</blockquote>
+<table class="docutils footnote" frame="void" id="id11" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a name="id11">[7]</a></td><td>Though the more <tt class="docutils literal"><span class="pre">malloc</span></tt>-like replacements sometimes fail
+to be better than good <tt class="docutils literal"><span class="pre">malloc</span></tt> implementations...</td></tr>
+</tbody>
+</table>
+<p>For a custom allocator to interact cleanly with HeapSafe, you need
+to ensure three properties:</p>
+<blockquote>
+<ul>
+<li><p class="first">Objects allocated by the custom allocator must be returned with
+all pointers zeroed-out. The simplest solution here is to use
+<tt class="docutils literal"><span class="pre">memset</span></tt> (and not <tt class="docutils literal"><span class="pre">hs_memset</span></tt>!) to zero-out allocated objects.</p>
+</li>
+<li><p class="first">When deallocating an object, the custom allocator should adjust
+the reference counts for pointers in the deallocated object. The
+custom deallocator will need to use the adjust function for the
+deallocated type.</p>
+</li>
+<li><p class="first">The custom allocator should avoid messing up any reference counts,
+either by using the <tt class="docutils literal"><span class="pre">hs_norc</span></tt> type qualifier, or by compiling
+with:</p>
+<pre class="literal-block">
+#pragma hs_norc
+</pre>
+<p>to disable reference counting for a whole file.</p>
+</li>
+</ul>
+</blockquote>
+<p>The <tt class="docutils literal"><span class="pre">HS_DESTROY</span></tt> macro makes it easy to satisfy the first two goals
+for type-specific memory allocators, as this simple implementation
+of a type-specific allocator shows:</p>
+<pre class="literal-block">
+struct T { ... the type to allocate ... };
+
+/* T objects are actually allocated as T_allocator objects. When in
+   the free list, the next field is &quot;selected&quot; and points to the
+   next free object . When in use in the program the object field is
+   &quot;selected&quot;. */
+union T_allocator {
+  /* HeapSafe: do not reference count the internal allocator
+               next pointer */
+  union T_allocator *hs_norc next;
+  struct T object;
+} *hs_norc free_Ts;
+
+/* Note that some type-specific allocators don't use a union,
+   instead they use various type casts. Recent C compilers (at least
+   gcc) tend to not like such code (as in, the type-specific
+   allocator breaks). */
+
+void get_more_Ts(void)
+{
+  ... get some extra T objects and put them on the free_Ts list ...
+  ... HeapSafe: (pointers in the) new objects must be zeroed-out ...
+}
+
+struct T *alloc_T(void)
+{
+  union T_allocator *allocated;
+
+  /* A standard type-specific allocator sequence: get the first
+     free object from the free list */
+  if (!free_Ts)
+    get_more_Ts();
+  allocated = free_Ts;
+  free_Ts = allocated-&gt;next;
+
+  /* HeapSafe: zero-out the next pointer as it overlaps with
+               some part of T */
+  allocated-&gt;next = NULL;
+
+  return &amp;allocated-&gt;object;
+}
+
+void free_T(struct T *togo)
+{
+  union T_allocator *going = (union T_allocator *)togo;
+
+  /* HeapSafe: zero-out the pointers in the deallocated object;
+               note that this ensures the pointers returned by
+               alloc_T are themselves zeroed-out */
+  HS_DESTROY(&amp;going-&gt;object);
+  going-&gt;next = free_Ts;
+  free_Ts = going;
+}
+</pre>
+<p>The comments marked with <tt class="docutils literal"><span class="pre">HeapSafe:</span></tt> are the HeapSafe-specific
+changes to a typical type-specific allocator.</p>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id48" id="safety-in-heapsafe" name="safety-in-heapsafe">7.5&nbsp;&nbsp;&nbsp;Safety in HeapSafe</a></h2>
+<p>HeapSafe checks memory deallocations. However, it does not guarantee
+the safety of your C programs, for several reasons:</p>
+<blockquote>
+<ul>
+<li><p class="first">HeapSafe does not check type safety issues, in particular that
+array accesses/pointer arithmetic stay within object bounds,
+or that unions and <tt class="docutils literal"><span class="pre">void</span> <span class="pre">*</span></tt> are used correctly.</p>
+<p>Furthermore, type safety errors can lead to erroneous reference
+counts, causing memory deallocation checks to go wrong (either
+report that a good free is bad, or that a bad free is good).</p>
+<p>If you are concerned with type safety, you may want to check out
+the <a class="reference" href="http://deputy.cs.berkeley.edu/">Deputy</a> project.</p>
+</li>
+</ul>
+</blockquote>
+<blockquote>
+<ul class="simple">
+<li>HeapSafe uses 8-bit reference counts (to save space). This means
+that HeapSafe will erroneously allow you to deallocate an object
+with exactly 256 (or 512, etc) references. This should be very
+unlikely in non-malicious code.</li>
+<li>If HeapSafe runs out of memory in a delayed free scope, it reverts
+to unchecked deallocation.</li>
+<li>Pointers written in non-HeapSafe code are not tracked by HeapSafe.</li>
+<li>Finally, uses of <tt class="docutils literal"><span class="pre">hs_norc</span></tt> allow you to disable
+reference-counting on a pointer-by-pointer basis.</li>
+</ul>
+</blockquote>
+</div>
+</div>
+<div class="section">
+<h1><a class="toc-backref" href="#id49" id="implementation-overview" name="implementation-overview">8&nbsp;&nbsp;&nbsp;Implementation Overview</a></h1>
+<p>This section presents a very brief overview of the HeapSafe
+implementation for single-threaded code. For a more detailed
+presentation and evaluation of HeapSafe, please read the <a class="reference" href="http://berkeley.intel-research.net/dgay/pubs/07-ismm-heapsafe.pdf">HeapSafe
+paper</a>.</p>
+<p>For multi-threaded code, HeapSafe's reference counting is based on the
+work of <a class="reference" href="http://www.cs.technion.ac.il/~erez/Papers/refcount.ps">Levanoni and Petrank</a>, with modifications described in our
+<cite>SharC technical report</cite>.</p>
+<div class="section">
+<h2><a class="toc-backref" href="#id50" id="reference-counting" name="reference-counting">8.1&nbsp;&nbsp;&nbsp;Reference Counting</a></h2>
+<p>HeapSafe associates an 8-bit reference count with each 8-byte chunk of
+memory, as shown in the following figure:</p>
+<img alt="reftable8.png" src="reftable8.png" />
+<p>These 8-bit reference counts are stored in a large (512MB on a 32-bit
+machine) array. HeapSafe relies on Linux's on-demand page allocation
+strategy (a page is only reserved on the first access) to allocate
+only as much space as needed for this array.</p>
+<p>As a result, the code generated by the HeapSafe compiler to update
+a pointer and the associated reference counts is very simple. A
+generic pointer write <tt class="docutils literal"><span class="pre">*a</span> <span class="pre">=</span> <span class="pre">b</span></tt> becomes (<tt class="docutils literal"><span class="pre">__hs_rcs</span></tt> is the
+reference count array):</p>
+<pre class="literal-block">
+if (*a)
+  __hs_rcs[(uintptr_t)*a &gt;&gt; 3]--;
+*a = b;
+if (*a)
+  __hs_rcs[(uintptr_t)*a &gt;&gt; 3]++;
+</pre>
+<p>The ifs are not necessary, but improve performance because
+null-pointers are very common.</p>
+<p>HeapSafe sums all the 8-bit reference counts when checking object
+deallocation (see below), so pointer arithmetic does not need to
+update any reference counts.</p>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id51" id="id12" name="id12">8.2&nbsp;&nbsp;&nbsp;Local Variables</a></h2>
+<p>As mentioned earlier, local pointer variables whose address is
+not taken are not reference-counted. Instead, they are saved on
+a private stack when a function is called. This stack is checked
+at deallocation time.</p>
+<p>The other local variables containing pointers are saved to a second
+private stack at function entry. This stack is only used by
+<tt class="docutils literal"><span class="pre">longjmp</span></tt>, to remove reference counts due to local variables when
+unwinding the stack.</p>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id52" id="id13" name="id13">8.3&nbsp;&nbsp;&nbsp;Delayed Free Scopes</a></h2>
+<p>HeapSafe simply keeps a chunky list of the objects in the scope, and
+frees the objects (and the list) at the end of the scope. If HeapSafe
+runs out of memory for the chunky list, it simply performs unchecked
+deallocations.</p>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id53" id="checking-frees" name="checking-frees">8.4&nbsp;&nbsp;&nbsp;Checking Frees</a></h2>
+<p>At deallocation time, HeapSafe:</p>
+<blockquote>
+<ul class="simple">
+<li>calls the adjust functions for all objects being deallocated
+simultaneously, to remove internal pointers and pointers between
+deallocated objects from the reference counts</li>
+<li>sums the 8-bit reference counts of an object, and reports a bad
+free if this sum is non-zero.</li>
+<li>checks the private local variable stack for references to the
+deallocated objects and reports a bad free if any reference is
+found</li>
+</ul>
+</blockquote>
+</div>
+</div>
+<div class="section">
+<h1><a class="toc-backref" href="#id54" id="copyrights" name="copyrights">9&nbsp;&nbsp;&nbsp;Copyrights</a></h1>
+<div class="section">
+<h2><a class="toc-backref" href="#id55" id="compiler" name="compiler">9.1&nbsp;&nbsp;&nbsp;Compiler</a></h2>
+<p>The HeapSafe compiler is based on the CIL infrastructure. As a result, the
+whole compiler is by the following copyrights and licenses:</p>
+<pre class="literal-block">
+Copyright (c) 2007-2008 Intel Corporation
+All rights reserved.
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+        Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+        Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+    Neither the name of the Intel Corporation nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE INTEL OR ITS
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+</pre>
+<p>and:</p>
+<pre class="literal-block">
+Copyright (c) 2001-2008,
+ George C. Necula    &lt;necula&#64;cs.berkeley.edu&gt;
+ Scott McPeak        &lt;smcpeak&#64;cs.berkeley.edu&gt;
+ Wes Weimer          &lt;weimer&#64;cs.berkeley.edu&gt;
+ Ben Liblit          &lt;liblit&#64;cs.wisc.edu&gt;
+ Matt Harren         &lt;matth&#64;cs.berkeley.edu&gt;
+ Zachary Anderson    &lt;zra&#64;cs.berkeley.edu&gt;
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice,
+this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
+
+3. The names of the contributors may not be used to endorse or promote
+products derived from this software without specific prior written
+permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+</pre>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id56" id="runtime-library" name="runtime-library">9.2&nbsp;&nbsp;&nbsp;Runtime Library</a></h2>
+<p>The HeapSafe runtime library is based on version 2.8.3 of Doug Lea's
+public domain malloc implementation, <a class="reference" href="http://g.oswego.edu/dl/html/malloc.html">dlmalloc</a>. It also includes modified
+setjmp and longjmp functions. These are based on glibc (Linux) or
+Apple's libc (Mac OS X).</p>
+<p>As a result, the HeapSafe runtime library is covered by the following
+licenses and copyrights:</p>
+<pre class="literal-block">
+Copyright (c) 2007 Intel Corporation
+All rights reserved.
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+        Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+        Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+    Neither the name of the Intel Corporation nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE INTEL OR ITS
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+</pre>
+<p>and, for Mac OS X only:</p>
+<pre class="literal-block">
+Copyright (c) 1999-2005 Apple Computer, Inc. All rights reserved.
+
+This file contains Original Code and/or Modifications of Original Code
+as defined in and that are subject to the Apple Public Source License
+Version 2.0 (the 'License'). You may not use this file except in
+compliance with the License. Please obtain a copy of the License at
+http://www.opensource.apple.com/apsl/ and read it before using this
+file.
+
+The Original Code and all software distributed under the License are
+distributed on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER
+EXPRESS OR IMPLIED, AND APPLE HEREBY DISCLAIMS ALL SUCH WARRANTIES,
+INCLUDING WITHOUT LIMITATION, ANY WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT.
+Please see the License for the specific language governing rights and
+limitations under the License.
+</pre>
+<p>and, for Linux only:</p>
+<pre class="literal-block">
+Copyright (C) 1991-2002 Free Software Foundation, Inc.
+
+The GNU C Library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+The GNU C Library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with the GNU C Library; if not, write to the Free
+Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+02111-1307 USA.
+</pre>
+</div>
+</div>
+</div>
+</body>
+</html>

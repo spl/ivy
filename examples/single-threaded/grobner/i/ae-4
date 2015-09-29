@@ -1,0 +1,39 @@
+6
+a b c d e g
+
+6
+
+- 2 a g^4 - 4 a e^2 g^2 + 4 a b^2 g^2 + 4 a^3 g^2 - 2 a e^4 - 4 a d^2 e^2 +
+	4 a b^2 e^2 + 4 a^3 e^2 -8 a b c d e - 2 a d^4 + 4 a c^2 d^2 + 4 a^3 d^2 +
+	2 a c^4 + 4 a b^2 c^2 + 4 a^3 c^2 + 16 a c^2 + 2 a b^4 + 4 a^3 b^2 + 16 a b^2 +
+	2 a^5 + 16 a^3 - 24 a ;
+
+2 c g^4 + 4 c e^2 g^2 + 4 b d e g^2 + 4 c d^2 g^2 + 4 c^3 g^2 + 8 b^2 c g^2
+	+ 8 a^2 c g^2 + 16 c g^2 + 2 c e^4 + 4 b d e^3 + 4 c^3 e^2 + 8 b^2 c e^2 + 8 a^2 c e^2
+	+ 16 c e^2 + 4 b d^3 e - 4 b c^2 d e + 4 b^3 d e + 4 a^2 b d e + 16 b d e - 2 c d^4
+	+ 4 c^3 d^2 + 4 a^2 c d^2 + 2 c^5 + 4 b^2 c^3 + 4 a^2 c^3 + 16 c^3 + 2 b^4 c + 4 a^2 b^2 c
+	+ 16 b^2 c + 2 a^4 c + 16 a^2 c - 24 c ;
+
+-2 d g^4 + 4 b c e g^2 + 4 d^3 g^2 - 4 c^2 d g^2 + 4 b^2 d g^2 + 2 d e^4
+	+ 4 b c e^3 + 4 d^3 e^2 + 8 b^2 d e^2 + 4 a^2 d e^2 + 16 d e^2 - 4 b c d^2 e + 4 b c^3 e
+	+ 4 b^3 c e + 4 a^2 b c e + 16 b c e + 2 d^5 + 4 c^2 d^3 + 4 b^2 d^3 + 4 a^2 d^3 + 16 d^3
+	- 2 c^4 d - 4 a^2 c^2 d + 2 b^4 d + 16 b^2 d - 2 a^4 d - 24 d ;
+
+
+2 e g^4 + 4 e^3 g^2 + 8 d^2 e g^2 + 4 c^2 e g^2 + 4 b^2 e g^2 + 4 a^2 e g^2
+	+ 16 e g^2 + 4 b c d g^2 + 2 e^5 + 4 d^2 e^3 + 4 c^2 e^3 + 4 b^2 e^3 + 4 a^2 e^3 + 16 e^3
+	- 4 b c d e^2 + 2 d^4 e + 8 c^2 d^2 e + 4 a^2 d^2 e + 16 d^2 e + 2 c^4 e + 16 c^2 e
+	-2 b^4 e - 4 a^2 b^2 e - 2 a^4 e - 24 e + 4 b c d^3 + 4 b c^3 d + 4 b^3 c d
+	+ 4 a^2 b c d + 16 b c d ;
+
+
+2 g^5 + 4 e^2 g^3 + 4 d^2 g^3 + 4 c^2 g^3 + 4 b^2 g^3 + 4 a^2 g^3 + 16 g^3 + 2 e^4 g
+	+ 4 c^2 e^2 g + 4 b^2 e^2 g + 4 a^2 e^2 g + 16 e^2 g - 8 b c d e g - 2 d^4 g
+	+ 4 c^2 d^2 g - 4 b^2 d^2 g + 2 c^4 g + 16 c^2 g - 2 b^4 g - 4 a^2 b^2 g - 2 a^4 g - 24 g ;
+
+- 2 b g^4 - 4 b e^2 g^2 + 4 c d e g^2 + 4 b d^2 g^2 + 4 b^3 g^2 + 4 a^2 b g^2  -
+	2 b e^4 + 4 c d e^3 + 4 b^3 e^2 + 4 a^2 b e^2 + 4 c d^3 e + 4 c^3 d e - 4 b^2 c d e +
+	4 a^2 c d e + 16 c d e + 2 b d^4 + 8 b c^2 d^2 + 4 b^3 d^2 + 8 a^2 b d^2 + 16 b d^2 +
+	2 b c^4 + 4 b^3 c^2 + 4 a^2 b c^2 + 16 b c^2 + 2 b^5 + 4 a^2 b^3 + 16 b^3 + 2 a^4 b + 16 a^2 b - 24 b ;
+
+

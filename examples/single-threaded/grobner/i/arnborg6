@@ -1,0 +1,11 @@
+6
+x y z t u v
+
+6
+1 x + 1 y + 1 z + 1 t + 1 u + 1 v ;
+1 x y + 1 y z + 1 z t + 1 t u + 1 u v + 1 v x ;
+1 x y z + 1 y z t + 1 z t u + 1 t u v + 1 u v x + 1 v x y ;
+1 x y z t + 1 y z t u + 1 z t u v + 1 t u v x + 1 u v x y + 1 v x y z ;
+1 x y z t u + 1 y z t u v + 1 z t u v x + 1 t u v x y + 1 u v x y z + 1 v x y z t ;
+1 x y z t u v + 1 ;
+

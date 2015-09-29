@@ -1,0 +1,8 @@
+8
+x y z t a b c d
+
+3
+x y + x z + x t - a ;
+y x + y z + y t - b ;
+z x + z y + z t - c ;
+

@@ -1,0 +1,9 @@
+8
+x y z t a b c d
+
+4
+1 x y + 1 x z + 1 x t - 1 a ;
+1 y x + 1 y z + 1 y t - 1 b ;
+1 z y + 1 z x + 1 z t - 1 c ;
+1 t x + 1 t y + 1 t z - 1 d ;
+

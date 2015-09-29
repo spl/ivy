@@ -1,0 +1,11 @@
+4
+x y z t
+
+6
+x + y + z + t ;
+y^2 + 2 y t + t^2 ;
+y z - y t - z^2 t^4 + z t - 2 t^2 ;
+y t^4 + y + t^5 + t ;
+z^3 t^2 + z^2 t^3 + z + t ;
+z^2 t^6 + z^2 t^2 + t^4 + 1 ;
+

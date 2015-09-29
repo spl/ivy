@@ -1,0 +1,20 @@
+Source: ivy
+Section: devel
+Priority: optional
+Maintainer: David Gay <david.e.gay@intel.com>
+Build-Depends: debhelper (>= 5), autotools-dev, ocaml (>= 3.08)
+Standards-Version: 3.7.2
+
+Package: ivy
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, perl-base (>= 5.6.1), gcc (>= 4)
+Conflicts: deputy, deputy-tinyos
+Recommends: ocaml-interp (>= 3.08)
+Description: C dialect that checks type, memory and concurrency safety
+ Ivy is a compiler and runtime library for an extended dialect of C
+ that checks type, memory and concurrency safety. Ivy relies on a small
+ number of lightweight annotations in the source code to keep time and
+ space overheads reasonable. Ivy is implemented as a C-to-C compiler
+ using gcc as its backend.
+ For more information and documentation, please see 
+ http://ivy.cs.berkeley.edu

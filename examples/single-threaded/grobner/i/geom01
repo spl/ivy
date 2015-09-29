@@ -1,0 +1,15 @@
+9
+zz1 z1 z2 x1 x2 x3 u1 u2 u3
+
+5
+x2*u3 + x1*u2 - x1*u1 ;
+x1 u3 - x2 u2 ;
+x3 u1 - x3 u2 + x1 u3 - u1 u3 ;
+z1 x2 u1 z2 u3 - z1 x2 u1 - z2 u3 + 1 ;
+zz1 x2 x3 + zz1 x1^2 - zz1 x1 u1 - 1 ;
+
+/*
+	In triangle ABC, perp from A onto BC,
+	B onto CA and C onto AB are collinear
+*/
+

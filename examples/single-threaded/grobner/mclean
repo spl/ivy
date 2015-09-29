@@ -1,0 +1,6 @@
+cd cmump
+rm -f *.o
+cd ../multpol
+rm -f *.o
+cd ..
+rm -f bin/* lib/*

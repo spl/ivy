@@ -1,0 +1,34 @@
+40
+x0 y0 z0 t0 a0 b0 c0 d0
+x1 y1 z1 t1 a1 b1 c1 d1
+x2 y2 z2 t2 a2 b2 c2 d2
+x3 y3 z3 t3 a3 b3 c3 d3
+x4 y4 z4 t4 a4 b4 c4 d4
+
+20
+
+x0 y0 + x0 z0 + x0 t0 - a0 ;
+y0 x0 + y0 z0 + y0 t0 - b0 ;
+z0 y0 + z0 x0 + z0 t0 - c0 ;
+t0 x0 + t0 y0 + t0 z0 - d0 ;
+
+x1 y1 + x1 z1 + x1 t1 - a1 ;
+y1 x1 + y1 z1 + y1 t1 - b1 ;
+z1 y1 + z1 x1 + z1 t1 - c1 ;
+t1 x1 + t1 y1 + t1 z1 - d1 ;
+
+x2 y2 + x2 z2 + x2 t2 - a2 ;
+y2 x2 + y2 z2 + y2 t2 - b2 ;
+z2 y2 + z2 x2 + z2 t2 - c2 ;
+t2 x2 + t2 y2 + t2 z2 - d2 ;
+
+x3 y3 + x3 z3 + x3 t3 - a3 ;
+y3 x3 + y3 z3 + y3 t3 - b3 ;
+z3 y3 + z3 x3 + z3 t3 - c3 ;
+t3 x3 + t3 y3 + t3 z3 - d3 ;
+
+x4 y4 + x4 z4 + x4 t4 - a4 ;
+y4 x4 + y4 z4 + y4 t4 - b4 ;
+z4 y4 + z4 x4 + z4 t4 - c4 ;
+t4 x4 + t4 y4 + t4 z4 - d4 ;
+

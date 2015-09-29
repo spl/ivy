@@ -1,0 +1,115 @@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+libdir = @libdir@
+pkglibdir = $(libdir)/ivy
+
+B=heapsafe_libc
+
+SYSTEM=$(shell uname)
+
+ifeq ($(SYSTEM), Linux)
+SETJMP_DIR = linux
+LLSETJMP = linux/bsd-_setjmp.o
+SETJMP = linux/longjmp.o linux/sigjmp.o
+CSETJMP = linux/clongjmp.o linux/csigjmp.o
+else
+ifeq ($(SYSTEM), Darwin)
+SETJMP_DIR = macosx-i386
+LLSETJMP = macosx-i386/setjmp.o macosx-i386/_setjmp.o
+SETJMP =macosx-i386/csetjmp.o macosx-i386/sigsetjmp.o
+CSETJMP = macosx-i386/conccsetjmp.o macosx-i386/concsigsetjmp.o
+else
+SETJMP_DIR = unsupported-system
+endif
+endif
+
+HEAPSAFE_SRC = $(B).c $(B)_1.c typed.c mprintf.c options.c compat.c
+LIB_FILES = $(B).o $(LLSETJMP) $(SETJMP)
+LIB_DEBUG_FILES = $(B)_debug.o $(LLSETJMP) $(SETJMP)
+LIB_STATS_FILES = $(B)_stats.o $(LLSETJMP) $(SETJMP)
+LIB_CONC_FILES = $(B)_conc.o $(LLSETJMP) $(CSETJMP)
+
+CFLAGS=-I../heapsafe-include -g -O3 --param max-inline-insns-single=1000 -DNDEBUG -fno-strict-aliasing -Wall
+#CFLAGS=-I../heapsafe-include -g
+
+LIBRARIES = $(B).a $(B)_debug.a $(B)_stats.a $(B)_conc.a
+EXTRALIBS = $(B)_norc.a $(B)_nolocals.a $(B)_noscopes.a $(B)_nocs.a $(B)_noadjust.a dlmalloc_stats.o 
+
+all: $(LIBRARIES)
+
+extralibs: $(EXTRALIBS)
+
+$(B).a: $(HEAPSAFE_SRC) $(SETJMP)
+	$(CC) -c $(CFLAGS) -D__HS_NOCONCRC__ $(B).c
+	rm -f $@; ar r $@ $(LIB_FILES)
+
+$(B)_norc.a: $(HEAPSAFE_SRC) $(SETJMP)
+	$(CC) -c $(CFLAGS) -D__HS_NOCONCRC__  -DHS_NORC $(B).c
+	rm -f $@; ar r $@ $(LIB_FILES)
+
+$(B)_nolocals.a: $(HEAPSAFE_SRC) $(SETJMP)
+	$(CC) -c $(CFLAGS) -D__HS_NOCONCRC__  -DHS_NOLOCALS $(B).c
+	rm -f $@; ar r $@ $(LIB_FILES)
+
+$(B)_noscopes.a: $(HEAPSAFE_SRC) $(SETJMP)
+	$(CC) -c $(CFLAGS) -D__HS_NOCONCRC__  -DHS_NORC -DHS_NOSCOPES $(B).c
+	rm -f $@; ar r $@ $(LIB_FILES)
+
+$(B)_nocs.a: $(HEAPSAFE_SRC) $(SETJMP)
+	$(CC) -c $(CFLAGS) -D__HS_NOCONCRC__  -DHS_NORC -DHS_NOSCOPES -DHS_NOCLEAR $(B).c
+	rm -f $@; ar r $@ $(LIB_FILES)
+
+$(B)_noadjust.a: $(HEAPSAFE_SRC) $(SETJMP)
+	$(CC) -c $(CFLAGS) -D__HS_NOCONCRC__  -DHS_NOADJUST $(B).c
+	rm -f $@; ar r $@ $(LIB_FILES)
+
+$(B)_debug.a: $(LIB_DEBUG_FILES)
+	rm -f $@; ar r $@ $(LIB_DEBUG_FILES)
+
+$(B)_stats.a: $(LIB_STATS_FILES)
+	rm -f $@; ar r $@ $(LIB_STATS_FILES)
+
+$(B)_conc.a: $(LIB_CONC_FILES)
+	rm -f $@; ar r $@ $(LIB_CONC_FILES)
+
+$(B)_debug.o: $(B)_debug.c $(B)_debug_1.c findrefs.c mprintf.c typed.c refhash.c
+	$(CC) -c $(CFLAGS) -g $(B)_debug.c
+
+$(B)_stats.o: $(HEAPSAFE_SRC) stats.c
+	$(CC) -c -o $@ $(CFLAGS) -g -DHS_STATS $(B).c
+
+$(B)_conc.o: $(B).c $(B)_conc_1.c typed.c mprintf.c options.c compat.c heapsafe_internals.h
+	$(CC) -c -o $@ $(CFLAGS) -g -DUSE_LOCKS=1 $(B).c
+
+dlmalloc_stats.o: dlmalloc_stats.c
+	gcc -c -O3 dlmalloc_stats.c
+
+$(LLSETJMP): FORCE
+	(cd $(SETJMP_DIR) && make)
+
+$(SETJMP): FORCE
+	(cd $(SETJMP_DIR) && make)
+
+$(CSETJMP): FORCE
+	(cd $(SETJMP_DIR) && make)
+
+FORCE:
+
+clean:
+	rm -f *.o *.a linux/*.o macosx-i386/*.o
+
+INSTALL = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+
+INSTALL_FILES = $(LIBRARIES) nofree
+
+install: $(INSTALL_FILES)
+	$(INSTALL_DATA) $(INSTALL_FILES) $(DESTDIR)$(pkglibdir)/lib
+
+# Look out for outdated Makefiles; if it's out of date, this will automatically
+# re-run ./config.status, then re-exec make with the same arguments.
+Makefile: ../config.status Makefile.in
+	@echo "Rebuilding the Makefile"
+	(cd ..;./config.status)
+

@@ -1,0 +1,5 @@
+Ivy builds on Linux and Mac OS X, in the usual fashion:
+
+  ./configure --prefix=<your favourite installation point>
+  make
+  make install

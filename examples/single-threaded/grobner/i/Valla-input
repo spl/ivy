@@ -1,0 +1,19 @@
+20
+
+J I H G F E D C B A c b a w v u t z y x
+x y z t u v w a b c A B C D E F G H I J
+
+10
+
+- z^2 u + 2 y z v - x v^2 - y^2 a + x u a + A^3;
+- z t u + y t v + y z w - x v w - y^2 b + x u b + B^3;
+- t^2 u + 2 y t w - x w^2 - y^2 c + x u c + C^3;
+- z t v + z^2 w + y t a - x w a - y z b + x v b + D^3;
+- t^2 v + z t w + y t b - x w b - y z c + x v c + E^3;
+- t v^2 + z v w + t u a - y w a - z u b + y v b + F^3;
+- t v w + z w^2 + t u b - y w b - z u c + y v c + G^3;
+- t^2 a + 2 z t b - x b^2 - z^2 c + x a c + H^3;
+- t w a + t v b + z w b - y b^2 - z v c + y a c + I^3;
+- w^2 a + 2 v w b - u b^2 - v^2 c + u a c + J^3;
+
+

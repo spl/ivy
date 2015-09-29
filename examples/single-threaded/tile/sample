@@ -1,0 +1,264 @@
+\documentstyle[11pt]{article}
+\input{mymargins}
+\input{macros}
+\newcommand{\fn}[2]{#1 \rightarrow #2}
+
+\newcommand{\regist}[1]{\m{\em Reg}({\tt #1})}
+\newcommand{\regits}{\m{\em Reg}}
+\newcommand{\tlv}{\m{\em TLV}}
+\newcommand{\wcup}{\;\cup\;}
+
+\begin{document}
+\bibliographystyle{alpha}
+
+\title{Introduction to Constraint-Based Program Analysis}
+\author{Alexander Aiken \\
+	EECS Department \\
+        University of California, Berkeley \\
+	Berkeley, CA  94702-1776 \\
+	aiken@cs.berkeley.edu}
+\date{}
+\maketitle
+
+\section{Introduction}
+\label{sec-pa}
+
+Program analysis is concerned with automatically extracting
+information from programs.  Program analysis has a long history of
+application, particularly in optimizing compilers and software
+engineering tools.  This paper provides an overview of {\em
+constraint-based} program analysis.  While much has been written about
+constraint-based program analysis in recent years, there is relatively
+little material to assist people who wish to learn something about the
+field.  Two survey papers cover the computational complexity of
+various constraint problems that arise in program analysis \cite{}.
+The purpose of the present work is to motivate the use of constraints
+for program analysis from the perspective of the applications of the
+theory.  We also draw some comparisons with other approaches to
+constructing program analyses.
+
+Program analysis using constraints is divisible into {\em constraint
+generation} and {\em constraint resolution}.  Constraint generation
+produces constraints from program text specifying the desired
+information about the program.  Constraint resolution (i.e., solving
+the constraints) then computes this desired information.
+In the author's view, the constraint-based analysis paradigm is appealing for
+three primary reasons:
+\begin{itemize}
+\item {\em Constraints separate specification from implementation.}
+Constraint generation is the specification of the analysis; constraint
+resolution is the implementation.  This division helps to organize and
+simplify understanding of program analyses.  The soundness of an
+analysis can be proven solely on the basis of the constraint systems
+used---there is no need to resort to reasoning about a particular
+algorithm for solving the constraints.  On the other hand, algorithms
+for solving classes of constraint problems can be presented and
+analyzed independent of any particular program analysis.  General
+results on solving constraint problems provide ``off-the-shelf'' tools
+for program analysis designers.
+
+\item {\em Constraints yield natural specifications}.  Constraints are
+(usually) local; that is, each piece of program syntax contributes its
+own constraints in isolation from the rest of the program.  The
+conjunction of all local constraints captures global properties of the
+program being analyzed.
+
+\item {\em Constraints enable sophisticated implementations}.  
+The constraint problems that arise in program analysis have a rich
+theory that can be exploited in implementations.  We shall only touch on this
+subject in this paper.
+
+\end{itemize}
+
+We first briefly discuss the long history of the use of constraints in program
+analysis, which predates the current interest in the area by many
+years (Section~\ref{sec-history}).  The overview proper
+begins with the introduction of {\em set constraints}, 
+a widely used constraint formalism in program analysis and the
+one with which the author is best acquainted (Section~\ref{sec-sc}).  
+
+The main contribution of the paper is to show that three classical
+problems---standard dataflow equations, simple type inference, and
+monomorphic closure analysis---are all special cases of set
+constraints (Section~\ref{sec-app}).  This result is a bit surprising,
+as each of these three very basic analyses have been developed by
+different communities of people over extended periods of time, and to
+our knowledge no formal connection between the problems has been noted
+previously in the literature.  Our main aim in choosing these
+problems, however, is that we assume most readers are familiar with at
+least one of them and are thereby be afforded an easy path to
+appreciation of the constraint-based analysis perspective.  We also
+present one simple new analysis suggestive of the expressive power
+provided by set constraints.
+
+To give some insight into the algorithmic issues involved in a general
+constraint-based analysis system we give a standard resolution
+algorithm for set constraints and prove its correctness
+(Section~\ref{sec-proof}).  We also discuss what is meant by
+``solving'' the constraints, and explain that in different contexts we
+are interested in different notions of solvability.  Depending on the
+application, we may be interested in only knowing that a solution
+exists, actually calculating a solution, calculating a particular
+solution, or exhibiting all solutions to the constraints.
+
+Set constraints provide one of the most general decidable theory known
+for constraint-based program analysis, and the essential issues of
+constraint-based analysis can be illustrated easily using set
+constraints.  However, we do not wish to give the impression that set
+constraints are the only useful constraint theory for program
+analysis.  In addition, there are of course other approaches to
+program analysis not based on constraints.  Other constraint
+formalisms, altogether different approaches, as well as the place of
+constraint-based program analysis in the general theory of {\em
+abstract interpretation}, are discussed in Section~\ref{sec-related}.
+
+\section{History}
+
+Using constraints for program analysis is not a new idea.  The
+earliest example we are aware of is due to Reynolds, who proposed an
+analysis of Lisp programs based on the resolution of inclusion
+constraints in 1969 \cite{Reynolds69}.  Similar ideas (but based on
+grammars rather than constraints, see Section~\ref{sec-related}) were
+developed independently later by Jones and Muchnick \cite{JM??}.
+Dataflow equations and type equations, two examples that we shall
+investigate in greater depth in Section~\ref{}, also have a long
+history.  Dataflow equations form the basis of most classical
+algorithms for flow analysis used in compilers for procedural
+languages (most notably C and FORTRAN compilers).  Type equations are
+the basis of type inference for functional languages and for template
+polymorphism in object-oriented languages.
+
+While the idea of program analysis using constraints is not new,
+there has been a dramatic shift in the research
+perspective in recent years.  Formerly, each of the problem areas
+described above was viewed as a separate line of research, with its
+own techniques, problems, and terminology.  Efforts to hybridize or
+extend these techniques met with considerable difficulty, at least in part
+because it was unknown whether the resulting constraint problems could
+be solved.  Today, at least within the community of people working in
+constraint-based analysis, it is understood that these problems are
+related, and that much can be gained by viewing the problems as
+instances of a more general setting.  Furthermore, these areas are not
+as distinct as was previously believed, and in fact the various
+components may be combined quite freely to create new program
+analyses.
+
+To make the advantages of the constraint perspective more concrete, we
+use another classical problem for illustration.  Most compilers
+perform {\em register allocation} to assign machine registers to 
+program variables.  Consider the following fragment of imperative
+code, where program variables are named {\tt a,b,c \ldots}:
+
+\begin{verbatim}
+a := c + d  
+e := a + b   
+f := e - 1          
+\end{verbatim}
+
+A {\em valid register assignment} is a mapping from variable names
+to register names that preserves program semantics. 
+If the register names are {\tt r1, r2, r3, \ldots}, then 
+the program under one valid register assignment is:
+\begin{verbatim}
+r1 := r2 + r3
+r4 := r1 + r5
+r1 := r4 - 1
+\end{verbatim}
+
+The difficulty in register allocation is that there are usually more
+program variables than there are registers to hold them.  In the
+example above, six variables are mapped into five registers, with
+variables {\tt a} and {\tt f} sharing register {\tt r1}.  In general,
+a valid register allocation may not even exist for a given program.
+In this case, the number of variables in the program can be reduced by
+{\em spilling} some variables by inserting code to save and restore
+these variables to and from main memory.
+
+The register allocation problem was already recognized in the FORTRAN
+I compiler in the 1950's, but the solution techniques were {\em ad
+hoc} and not entirely effective.  By the 1970's it was realized that
+the weaknesses of contemporary register allocation were a limiting
+factor in the development of optimizing compilers \cite{}.  A
+breakthrough came in the late 1970's when Chaitin proposed a register
+allocation heuristic based on graph coloring \cite{}.  The
+significance of the contribution can be judged by the fact that
+Chaitin's technique was the subject of one of the first software
+patents.  Chaitin's insight was to formulate register allocation as a
+constraint problem.
+
+A variable {\tt x} is said to be {\em live} at a program point $p$ if $x$ is
+referred to at some program point later in the execution ordering than $p$ with no intervening
+assignment to {\tt x}. Otherwise {\tt x} is said to be {\em dead}.
+Consider an assignment statement $\tt y := ...$.  A basic observation
+about register allocation is:
+\begin{quotation}
+{\em If variable $\tt x$ is live when variable $\tt y$ is assigned, then $\tt x$ and $\tt y$ cannot
+be held in the same register. }
+\end{quotation}
+In the example above, we have
+implicitly assumed that {\tt a} is dead at the point where {\tt f} is
+assigned, allowing us to reuse {\tt a}'s register to hold the value of
+{\tt f}.
+
+This observation suggests the following natural constraint problem.
+Let $\regits: \m{\em Variables} \rightarrow \m{\em Registers}$ be
+a register assignment.  The constraints on $\regits$ are
+\[ \regist{x} \neq \regist{y} \Leftrightarrow \m{{\tt x} is live where {\tt y} is assigned} \]
+This formulation neatly captures all the constraints under which
+a register assignment is valid.  The next problem is to effectively
+compute register assignments.  The constraints naturally specify a
+graph with one node for each variable and an edge $({\tt x},{\tt y})$
+for each inequality constraint $\regist{x} \neq \regist{y}$.
+A graph is {\em k-colorable} if each node of the graph can be assigned
+a color different from the color of all of its neighbors in such
+a way that no more than $k$ colors are used.  Finding
+a register assignment with $k$ registers is equivalent to finding
+a $k$ coloring of the constraint graph.
+
+By the time of Chaitin's work, it was already known that graph
+coloring is an NP-complete problem, and therefore that efficient
+exact solutions were very unlikely to be found \cite{}.  Chaitin proposed a
+simple heuristic for coloring the graph based on another observation:
+\begin{quotation}
+{\em If a node {\tt x} has less than $k$ incident edges, then the graph
+is $k$-colorable if and only if the graph obtained by removing $\tt x$
+and its edges is $k$-colorable.}
+\end{quotation}
+That is, if {\tt x} has less than $k$ neighbors, then there will always
+be a color for {\tt x}, no matter how the rest of the graph is colored.
+In cases where the heuristic fails to color the entire graph (i.e.,
+a point is reached where all nodes have $k$ or more neighbors) it 
+is necessary to choose a variable to spill.  While subsequent
+work extended the heuristics for coloring and spilling, graph coloring
+has remained the best framework known for register allocation for
+nearly 20 years.
+
+This rather old example illustrates all of the advantages of using
+constraint formulations in program analysis.  First, the constraint
+formulation as inequalities separates the specification of the problem
+from its implementation, and most importantly gives a global
+characterization of the conditions to be satisfied.  The abstract
+constraint problem, now free of the details of the particular program
+and programming language, can then be addressed by appropriate
+techniques, in this case graph coloring.  Note that the constraint
+resolution algorithm proceeds in a manner that has no direct
+relationship to program structure, and that if one were to actually
+view the sequence of allocation decisions made by the greedy heuristic
+it would appear to jump around from point to point in the program with
+no apparent pattern.  If we were to attempt formulating directly an
+algorithm that was defined, e.g., by induction on the program syntax,
+it is unlikely we would arrive at something as effective as the
+constraint-based approach.
+
+
+The reader may find register allocation heuristics a peculiar choice
+for a historical example of program analysis.  After all, graph
+coloring register allocation is not usually even regarded as a program
+analysis problem, let alone a constraint-based one.  However, it is
+difficult to understate the impact that this idea had on the compiler
+technology of its time, and the importance of the constraint
+formulation in developing the technique.  Register allocation is
+interesting for another reason.  To our knowledge, it is the only
+significant application of {\em negative} constraints (i.e.,
+inequalities) to program analysis in the literature.  We shall return
+to this point in Section~\ref{sec-related}.

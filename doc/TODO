@@ -1,0 +1,14 @@
+
+Deputy compiler
+- complain about functions without prototype
+
+
+Deputy run-time checks
+- compile the library with optimizations on (two versions)
+- efficient checking sequences without code-cache pollution
+
+
+Example: 
+- in bh I had to turn the union into a struct because fields were used
+differently in different stages of the computation. I should be able to add a
+tag field though. 

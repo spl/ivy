@@ -1,0 +1,11 @@
+in pfactorbase, when calling ./cfrac 33
+  (tries to write element 1 in a 1-element array)
+  fix: initialise m in first loop when m == 0
+
+--
+
+small numbers are buggy (1 element results from pfactorbase cause more 
+problems than just the above...)
+
+and 4 causes a divide by zero in pdivmod...
+

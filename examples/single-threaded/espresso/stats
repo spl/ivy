@@ -1,0 +1,167 @@
+allocated                      1 times. Allocated at cubestr.c:27
+allocated                      1 times. Allocated at cubestr.c:28
+allocated                      1 times. Allocated at cubestr.c:29
+allocated                      1 times. Allocated at cubestr.c:30
+allocated                      1 times. Allocated at cubestr.c:41
+allocated                      1 times. Allocated at cubestr.c:42
+allocated                      1 times. Allocated at cubestr.c:43
+allocated                      1 times. Allocated at cubestr.c:44
+allocated                      1 times. Allocated at cubestr.c:64
+allocated                      1 times. Allocated at cubestr.c:67
+allocated                      1 times. Allocated at cubestr.c:68
+allocated                      1 times. Allocated at cubestr.c:70
+allocated                      1 times. Allocated at cubestr.c:71
+allocated                      1 times. Allocated at cubestr.c:72
+allocated                      1 times. Allocated at cubestr.c:73
+allocated                      1 times. Allocated at cvrin.c:231
+allocated                      1 times. Allocated at cvrin.c:631
+allocated                      1 times. Allocated at cvrin.c:649
+allocated                      1 times. Allocated at utility.c:142
+allocated                      2 times. Allocated at contain.c:321
+allocated                     10 times. Allocated at cubestr.c:66
+allocated                     12 times. Allocated at cubestr.c:46
+allocated                     17 times. Allocated at expand.c:58
+allocated                     17 times. Allocated at expand.c:59
+allocated                     17 times. Allocated at expand.c:60
+allocated                     17 times. Allocated at expand.c:61
+allocated                     17 times. Allocated at expand.c:62
+allocated                     20 times. Allocated at set.c:328
+allocated                     21 times. Allocated at set.c:574
+allocated                     52 times. Allocated at cofactor.c:280
+allocated                     52 times. Allocated at cofactor.c:281
+allocated                     72 times. Allocated at cvrm.c:244
+allocated                     90 times. Allocated at unknown malloc:0
+allocated                    210 times. Allocated at sparse.c:69
+allocated                    221 times. Allocated at cofactor.c:317
+allocated                    221 times. Allocated at cofactor.c:319
+allocated                    647 times. Allocated at essen.c:105
+allocated                   1137 times. Allocated at cofactor.c:297
+allocated                   1137 times. Allocated at cofactor.c:298
+allocated                   1231 times. Allocated at expand.c:334
+allocated                   1330 times. Allocated at set.c:313
+allocated                   1676 times. Allocated at expand.c:406
+allocated                   1676 times. Allocated at expand.c:412
+allocated                   2221 times. Allocated at gasp.c:112
+allocated                   2221 times. Allocated at gasp.c:113
+allocated                   2221 times. Allocated at gasp.c:114
+allocated                   2541 times. Allocated at set.c:384
+allocated                   3315 times. Allocated at essen.c:146
+allocated                   4384 times. Allocated at irred.c:372
+allocated                   4384 times. Allocated at irred.c:373
+allocated                   5036 times. Allocated at reduce.c:218
+allocated                   5036 times. Allocated at reduce.c:223
+allocated                   5919 times. Allocated at sminterf.c:28
+allocated                   5983 times. Allocated at solution.c:34
+allocated                  11954 times. Allocated at solution.c:10
+allocated                  18106 times. Allocated at matrix.c:24
+allocated                  27216 times. Allocated at matrix.c:135
+allocated                  29482 times. Allocated at compl.c:53
+allocated                  29482 times. Allocated at compl.c:54
+allocated                  32752 times. Allocated at reduce.c:232
+allocated                  35021 times. Allocated at matrix.c:126
+allocated                  42590 times. Allocated at compl.c:110
+allocated                  49617 times. Allocated at reduce.c:204
+allocated                  58990 times. Allocated at contain.c:341
+allocated                  76577 times. Allocated at set.c:336
+allocated                  94289 times. Allocated at reduce.c:193
+allocated                  94786 times. Allocated at irred.c:223
+allocated                  94786 times. Allocated at irred.c:224
+allocated                 104869 times. Allocated at rows.c:100
+allocated                 106900 times. Allocated at cofactor.c:43
+allocated                 106900 times. Allocated at cofactor.c:46
+allocated                 164162 times. Allocated at reduce.c:115
+allocated                 164162 times. Allocated at reduce.c:116
+allocated                 193918 times. Allocated at cols.c:22
+allocated                 201950 times. Allocated at reduce.c:213
+allocated                 464941 times. Allocated at rows.c:22
+allocated                 551159 times. Allocated at cofactor.c:93
+allocated                 551159 times. Allocated at cofactor.c:96
+allocated                1118747 times. Allocated at matrix.c:178
+allocated bytes                8 times. Allocated at utility.c:142
+allocated bytes               12 times. Allocated at cubestr.c:43
+allocated bytes               12 times. Allocated at cubestr.c:44
+allocated bytes               12 times. Allocated at cubestr.c:67
+allocated bytes               12 times. Allocated at cubestr.c:68
+allocated bytes               40 times. Allocated at cubestr.c:64
+allocated bytes               40 times. Allocated at cvrin.c:631
+allocated bytes               48 times. Allocated at cubestr.c:27
+allocated bytes               48 times. Allocated at cubestr.c:28
+allocated bytes               48 times. Allocated at cubestr.c:29
+allocated bytes               48 times. Allocated at cubestr.c:30
+allocated bytes               48 times. Allocated at cubestr.c:41
+allocated bytes               48 times. Allocated at cubestr.c:42
+allocated bytes               48 times. Allocated at cubestr.c:71
+allocated bytes               48 times. Allocated at cubestr.c:72
+allocated bytes               48 times. Allocated at cubestr.c:73
+allocated bytes               48 times. Allocated at cvrin.c:231
+allocated bytes              120 times. Allocated at cubestr.c:66
+allocated bytes              144 times. Allocated at contain.c:321
+allocated bytes              144 times. Allocated at cubestr.c:46
+allocated bytes              204 times. Allocated at expand.c:58
+allocated bytes              204 times. Allocated at expand.c:59
+allocated bytes              204 times. Allocated at expand.c:60
+allocated bytes              204 times. Allocated at expand.c:61
+allocated bytes              204 times. Allocated at expand.c:62
+allocated bytes              228 times. Allocated at cubestr.c:70
+allocated bytes              228 times. Allocated at cvrin.c:649
+allocated bytes              560 times. Allocated at set.c:328
+allocated bytes              624 times. Allocated at cofactor.c:281
+allocated bytes              864 times. Allocated at cvrm.c:244
+allocated bytes             2652 times. Allocated at cofactor.c:319
+allocated bytes             4788 times. Allocated at set.c:574
+allocated bytes             7764 times. Allocated at essen.c:105
+allocated bytes            13644 times. Allocated at cofactor.c:298
+allocated bytes            26652 times. Allocated at gasp.c:112
+allocated bytes            26652 times. Allocated at gasp.c:113
+allocated bytes            26652 times. Allocated at gasp.c:114
+allocated bytes            29688 times. Allocated at set.c:313
+allocated bytes            39780 times. Allocated at essen.c:146
+allocated bytes            47864 times. Allocated at solution.c:34
+allocated bytes            52608 times. Allocated at irred.c:372
+allocated bytes            52608 times. Allocated at irred.c:373
+allocated bytes            60432 times. Allocated at reduce.c:218
+allocated bytes            60432 times. Allocated at reduce.c:223
+allocated bytes            71028 times. Allocated at sminterf.c:28
+allocated bytes            95632 times. Allocated at solution.c:10
+allocated bytes           224956 times. Allocated at cofactor.c:280
+allocated bytes           239496 times. Allocated at expand.c:406
+allocated bytes           239496 times. Allocated at expand.c:412
+allocated bytes           280668 times. Allocated at expand.c:334
+allocated bytes           291990 times. Allocated at unknown malloc:0
+allocated bytes           353784 times. Allocated at compl.c:53
+allocated bytes           353784 times. Allocated at compl.c:54
+allocated bytes           393024 times. Allocated at reduce.c:232
+allocated bytes           511080 times. Allocated at compl.c:110
+allocated bytes           595404 times. Allocated at reduce.c:204
+allocated bytes           796664 times. Allocated at matrix.c:24
+allocated bytes           926520 times. Allocated at sparse.c:69
+allocated bytes           939020 times. Allocated at contain.c:341
+allocated bytes          1131468 times. Allocated at reduce.c:193
+allocated bytes          1137432 times. Allocated at irred.c:223
+allocated bytes          1137432 times. Allocated at irred.c:224
+allocated bytes          1282800 times. Allocated at cofactor.c:46
+allocated bytes          14878112 times. Allocated at rows.c:22
+allocated bytes          1498536 times. Allocated at cofactor.c:317
+allocated bytes          1969944 times. Allocated at reduce.c:115
+allocated bytes          1969944 times. Allocated at reduce.c:116
+allocated bytes          2423400 times. Allocated at reduce.c:213
+allocated bytes          29146448 times. Allocated at cofactor.c:93
+allocated bytes          2936332 times. Allocated at rows.c:100
+allocated bytes          31324916 times. Allocated at matrix.c:178
+allocated bytes          3211920 times. Allocated at matrix.c:126
+allocated bytes          3880308 times. Allocated at set.c:384
+allocated bytes          4933316 times. Allocated at matrix.c:135
+allocated bytes          6205376 times. Allocated at cols.c:22
+allocated bytes          6613908 times. Allocated at cofactor.c:96
+allocated bytes          890615944 times. Allocated at cofactor.c:43
+allocated bytes          9153348 times. Allocated at cofactor.c:297
+allocated bytes          94594788 times. Allocated at set.c:336
+leak                           1 times. Allocated at unknown malloc:0
+scopesize                    496 times. Allocated at matrix.c:300
+scopesize                    676 times. Allocated at matrix.c:338
+scopesize                   1200 times. Allocated at set.c:371
+scopesize                   1856 times. Allocated at rows.c:67
+scopesize                  26128 times. Allocated at irred.c:389
+scopesize                  35488 times. Allocated at reduce.c:126
+scopesize                 149720 times. Allocated at matrix.c:92
+type information missing      89 times. Allocated at unknown malloc:0, freed at unknown:0

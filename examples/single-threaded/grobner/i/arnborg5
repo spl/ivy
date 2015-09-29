@@ -1,0 +1,10 @@
+5
+x y z t u
+
+5
+1 x + 1 y + 1 z + 1 t + 1 u ;
+1 x y + 1 y z + 1 z t + 1 t u + 1 u x ;
+1 x y z + 1 y z t + 1 z t u + 1 t u x + 1 u x y ;
+1 x y z t + 1 y z t u + 1 z t u x + 1 t u x y + 1 u x y z ;
+1 x y z t u + 1 ;
+

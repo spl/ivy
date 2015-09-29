@@ -1,0 +1,104 @@
+Deputy:
+  DALLOC/etc have different syntax from DMEMCPY/etc
+  Should these change somehow given HeapSafe?
+
+Auto-inclusion of API changes:
+  deputy auto-includes annots.h
+  heapsafe requires that you include heapsafe.h
+Resolve...
+
+Add DYNTYPE(x), where x is something of type type_t, to merge HeapSafe's
+RTTI w/ Deputy. hs_typeof must understand  DYNTYPE. Require a global
+adjust function when hs_typeof used? (alternate would seem to be to 
+include some kind of 1! id in type_t)
+
+Use WHEN to generate adjust functions.
+
+Random unsoundness: we don't enforce that free called on valid (i.e.,
+points-to-base) pointer.
+
+Add a "hs_typeof is invalid on this type" qualifier? Applies to void, and
+to user's "base" types. Could go overboard, and require targets of 
+"upcasts" (somehow identified) to have this qualifier.
+
+How to handle:
+  extern unsigned short primes[];
+  extern unsigned primesize;
+with deputy?
+
+Deputy error message talks about adding NT, though NTS is the most commonly
+required addition?
+
+void pfree();
+ ... pfree(u)
+gives the misleading error message:
+precision.h:63: Warning: Calling function pfree with too many args.
+
+char (foo NTS)[] = "foo" doesn't work, you need to do char (NTS foo)[] = "foo"
+
+
+---------
+
+need for 
+  void f(int *COUNT(n) _x, int n) { int *x = _x; .... }
+if x modified in f
+
+----------
+
+typedef struct {
+   unsigned  *pm;	/* bound check occurs before using this pm entry */
+   precision bound;	/* max allowable residual to prevent abort */
+} EasEntry;
+
+typedef EasEntry *NTS EasPtr;
+
+void freeEas(eas)
+   EasPtr eas;
+{
+   register EasPtr ep = eas;
+
+   if (ep != (EasPtr) 0) {
+      while (ep->pm != 0) {
+	 pdestroy(ep->bound);
+	 ep++;
+      }
+      free(eas);
+   }
+}
+
+gives me:
+pcfrac.c:251: Error: Assertion will always fail in pointer access check:
+  ep + 1 <= ep
+
+It's the sentinel game again - how do I convince deputy I've made my sentinel
+check?
+
+--------------
+
+no warning for
+  struct foo {
+    int n;
+    int (COUNT(n) x)[1];
+  };
+
+-------------
+
+no obvious way to avoid trusted in:
+
+  struct foo {
+    int n;
+    int (COUNT(n) x)[];
+  } *x;
+
+  x = malloc(sizeof(struct foo) + n * sizeof(int));
+  x->n = n; // runtime error here.  
+
+--------------
+
+want better sentinel-terminated array support (see EasEntry above)
+Zach agrees ;-)
+
+--------------
+
+not sure I'm convinced of the joy of NT inference - makes things hard
+to understand

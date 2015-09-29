@@ -1,0 +1,10 @@
+__inline static int atoi(char const  *__nptr) __attribute__((CTaint(*$1,$0)));
+long atol(const char *nptr) __attribute__((CTaint(*$1,$0)));
+long long atoll(const char *nptr) __attribute__((CTaint(*$1,$0)));
+long long atoq(const char *nptr) __attribute__((CTaint(*$1,$0)));
+int fscanf(void *, const char *, ...) __attribute__((ScanTaint(2)));
+int scanf(const char *, ...) __attribute__((ScanTaint(1)));
+int _IO_getc(void *) __attribute__((Taint($0,1,1)));
+int fgetc(void *) __attribute__((Taint($0,1,1)));
+char fgets(char *,int,void *) __attribute__((Taint(*$1,1,$2)));
+unsigned int read(int,void *,unsigned int) __attribute__((Taint(*$2,1,$3)));

@@ -1,0 +1,35 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.TH DEPUTY 1 "July 22, 2008"
+.SH NAME
+deputy \- Advanced C compiler that enforces type and memory safety
+.SH SYNOPSIS
+.B deputy
+.RI [ options ] " files" ...
+.SH DESCRIPTION
+Deputy is an advanced C compiler that enforces type and memory safety
+in existing C programs.  The programmer must add type annotations that
+describe, for example, the bounds of each pointer in terms of other
+program variables.  Deputy uses static analysis and run-time checks to
+enforce safety based on these annotations.
+.PP
+\fBdeputy\fR is just a wrapper around \fBivycc\fR:
+
+  deputy options files
+
+is equivalent to:
+
+  ivycc --deputy options files
+
+See the \fBivycc\fR man page for an explanation of \fBdeputy\fR's
+options, and \fBhttp://deputy.cs.berkeley.edu/\fR for documentation on
+Deputy itself.
+.SH SEE ALSO
+.BR ivycc (1).
+.SH AUTHOR
+Deputy was written by Jeremy Condit <jcondit@cs.berkeley.edu>, Matthew
+Harren <matth@cs.berkeley.edu>, Zachary Anderson <zra@cs.berkeley.edu>,
+and George C. Necula <necula@cs.berkeley.edu>.
+.PP
+This manual page was written by Jeremy Condit <jcondit@cs.berkeley.edu> and
+updated by David Gay <david.e.gay@intel.com>.
+

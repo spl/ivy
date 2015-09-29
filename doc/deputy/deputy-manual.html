@@ -1,0 +1,781 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<title>Deputy Manual</title>
+<link rel="stylesheet" type="text/css" href="deputy.css"/>
+</head>
+
+<body>
+<div id="frame">
+
+<h2>Deputy Manual</h2>
+
+<hr/>
+
+<h3>Contents</h3>
+
+<ul class="nobullet">
+<li>1. <a href="#what-is-deputy">What is Deputy?</a></li>
+<li>2. <a href="#basic-usage">Basic Usage</a></li>
+<ul class="nobullet">
+<li>2.1. <a href="#invoking-deputy">Invoking Deputy</a></li>
+<li>2.2. <a href="#edit-compile-debug">Edit, Compile, Debug</a></li>
+</ul>
+<li>3. <a href="#pointer-bounds-annotations">Pointer Bounds Annotations</a></li>
+<ul class="nobullet">
+<li>3.1. <a href="#syntax">Syntax</a></li>
+<li>3.2. <a href="#safe-pointers">Safe Pointers</a></li>
+<li>3.3. <a href="#count-pointers">Count Pointers</a></li>
+<li>3.4. <a href="#general-bounded-pointers">General Bounded Pointers</a></li>
+<li>3.5. <a href="#sentinel-pointers">Sentinel Pointers</a></li>
+<li>3.6. <a href="#null-terminated-pointers">Null-Terminated Pointers</a></li>
+<li>3.7. <a href="#casts">Casts</a></li>
+<li>3.8. <a href="#trusted-code">Trusted Code</a></li>
+</ul>
+<li>4. <a href="#inference">Inference</a></li>
+<ul class="nobullet">
+<li>4.1. <a href="#default-annotations">Default Annotations</a></li>
+<li>4.2. <a href="#automatic-bounds">Automatic Bounds</a></li>
+<li>4.3. <a href="#nt-inference">NT Inference</a></li>
+</ul>
+<li>5. <a href="#union-annotations">Union Annotations</a></li>
+<ul class="nobullet">
+<li>5.1. <a href="#tagged-unions">Tagged Unions</a></li>
+<li>5.2. <a href="#trusted-unions">Trusted Unions</a></li>
+</ul>
+<li>6. <a href="#polymorphism">Polymorphism</a></li>
+<ul class="nobullet">
+<li>6.1. <a href="#polymorphism-in-functions">Polymorphism in Functions</a></li>
+<li>6.2. <a href="#polymorphic-structures">Polymorphic Structures</a></li>
+</ul>
+<li>7. <a href="#special-functions">Special Functions</a></li>
+<ul class="nobullet">
+<li>7.1. <a href="#allocators">Allocators</a></li>
+<li>7.2. <a href="#memset-and-friends">Memset and Friends</a></li>
+</ul>
+<li>8. <a href="#contact-information">Contact Information</a></li>
+</ul>
+
+<hr/>
+
+<a name="what-is-deputy"/>
+<h3>1. What is Deputy?</h3>
+
+<p>Deputy is the part of <a href="http://ivy.cs.berkeley.edu">Ivy</a>
+that enforces type discipline on C programs. Among other things, it
+verifies that pointers stay within their designated bounds, and it
+ensures that union fields are used safely.</p>
+
+<p>In order to get type safety using Deputy, you must first supply
+some lightweight type annotations.  For the most part, these annotations
+are required on function arguments and return values, structure fields,
+and global variables--that is, the interfaces to each source file.
+Deputy's annotations are designed to reflect common programming idioms;
+for example, you can easily say that a pointer <tt>p</tt> points to an
+array of length <tt>n</tt>, where <tt>n</tt> is another variable in the
+program.  Deputy then verifies your program through a combination of
+compile-time and run-time checking.  This approach allows us to verify a
+wide range of real-world programs (even Linux device drivers!) in return
+for a slight performance penalty.</p>
+
+<p>Deputy differs from previous tools for safe C compilation in that it
+allows the programmer to specify pointer bounds and union tags using
+<i>dependent types</i>--that is, using annotations that depend on other
+variables or fields in your program.  As a result, Deputy requires fewer
+modifications to the original program and makes less invasive changes to
+the program during compilation.  Deputy produces object files that can be
+linked directly to object files produced by other compilers; thus, the
+programmer can choose to enable Deputy on a file-by-file basis, and
+programs compiled with Deputy can be linked directly with existing C
+libraries.</p>
+
+<p>An earlier version of Deputy is available as a 
+standalone tool at <a href="http://deputy.cs.berkeley.edu">
+http://deputy.cs.berkeley.edu</a>.</p>
+
+
+<hr/>
+
+<a name="basic-usage"/>
+<h3>2. Basic Usage</h3>
+
+<a name="invoking-deputy"/>
+<h4>2.1. Invoking Deputy</h4>
+
+<p>Deputy is part of Ivy, whose <tt>ivycc</tt> driver is a drop-in
+replacement for <tt>gcc</tt>. To enable Deputy's checks, you must pass
+the <tt>--deputy</tt> option to <tt>ivycc</tt>. Thus, for example, if
+you want to compile the C source file <tt>foo.c</tt> to the object
+file <tt>foo.o</tt>, you can use the following command:</p>
+
+<div class="code">% ivycc --deputy -c -o foo.o foo.c
+</div>
+
+<p>If you're using Deputy on an existing C project, all you need to do is
+to set the <tt>CC</tt> variable in your <tt>Makefile</tt> to 
+<tt>ivycc --deputy</tt>.</p>
+
+<p>The object files produced by Deputy are compatible with object files
+produced by <tt>gcc</tt>, so you can link them with the standard linker.
+However, Deputy-generated object files need to eventually be linked with
+Deputy's runtime library, which has code to handle run-time failures.  If
+you use <tt>ivycc</tt> as your linker (much as <tt>gcc</tt> is often used
+as the linker), the runtime library will automatically be linked when an
+executable is created.  For example, to link <tt>foo.o</tt> and
+<tt>bar.o</tt> to create an executable <tt>foobar</tt>, you can use the
+following command:</p>
+
+<div class="code">% ivycc --deputy -o foobar foo.o bar.o
+</div>
+
+<a name="edit-compile-debug"/>
+<h4>2.2. Edit, Compile, Debug</h4>
+
+<p>Using Deputy is much like the familiar edit-compile-debug cycle for any
+other compiler.  When you run Deputy on a C file, it will emit a number of
+warnings and errors that either suggest annotations or indicate errors.
+Your job as the programmer is to address these warnings and errors by
+adding annotations or changing code.</p>
+
+<p>For example, consider the following code:</p>
+
+<div class="code">int sum(int *data, int length) {
+    int i, sum = 0;
+    for (i = 0; i <= length; i++) {
+	sum += data[i];
+    }
+    return sum;
+}
+</div>
+
+<p>Assuming this code is in a file called <tt>sum.c</tt>, we could compile
+it as follows:</p>
+
+<div class="code">% ivycc --deputy -c -o sum.o sum.c
+sum.c:1: Warning: Type "int *" in formal "data" of sum needs a bound annotation.
+</div>
+
+<p>We got a warning, but it compiled.  Now let's build a program that
+calls the <tt>sum()</tt> function with an array of length 5.</p>
+
+<div class="code">% gcc -c -o test-sum.o test-sum.c
+% ivycc --deputy -o test-sum test-sum.o sum.o
+</div>
+
+<p>Note that we compiled the test code with <tt>gcc</tt>, since the
+resulting object files can be linked directly with the ones produced by
+<tt>ivycc</tt>.  Note also that we linked with <tt>ivycc</tt> so that we
+get Deputy's runtime library.</p>
+
+<p>Now let's run this program:</p>
+
+<div class="code">% ./test-sum
+sum.c:4: sum: Assertion failed in upper bound check:
+  data + i + 1 <= data + 1 (with no overflow)
+Execution aborted.
+</div>
+
+<p>The reason for this assertion is that Deputy assumed that the
+<tt>data</tt> argument to <tt>sum()</tt> pointed to a single integer, not
+an array of integers.  When the <tt>sum()</tt> function attempted to
+access integers beyond the first element of this array, a Deputy run-time
+error was triggered.  Note that the warning provided by Deputy at compile
+time indicated that something about this code was fishy.</p>
+
+<p>We can fix this error by adding an annotation to the <tt>int*</tt>
+type, as follows:</p>
+
+<div class="code">int sum(int * <span class="annot">COUNT(length)</span> data, int length) {
+    int i, sum = 0;
+    for (i = 0; i <= length; i++) {
+	sum += data[i];
+    }
+    return sum;
+}
+</div>
+
+<p>This annotation tells Deputy that <tt>length</tt> stores the length of
+<tt>data</tt>.  Now if we compile and run the above program, we will see
+no warnings or errors:</p>
+
+<div class="code">% ivycc --deputy -c -o sum.o sum.c
+% gcc -c -o test-sum.o test-sum.c
+% ivycc --deputy -o test-sum test-sum.o sum.o
+% ./test-sum
+</div>
+
+<p>Deputy provides many such annotations to describe common programming
+idioms.  In the following sections, we will discuss Deputy's pointer
+annotations in detail.</p>
+
+<hr/>
+
+<a name="pointer-bounds-annotations"/>
+<h3>3. Pointer Bounds Annotations</h3>
+
+<a name="syntax"/>
+<h4>3.1. Syntax</h4>
+
+<p>Most Deputy annotations are written as type annotations that are
+written immediately after the type to which they are attached.  For
+example:</p>
+
+<div class="code">int * <span class="annot">SAFE</span> p;</div>
+
+<p>This code declares a variable <tt>p</tt> of type <tt>int * SAFE</tt>.
+In this example, <tt>SAFE</tt> is a Deputy annotation attached to the
+pointer type <tt>int *</tt>.  In general, any annotations appearing after
+a <tt>*</tt> apply to that pointer type.</p>
+
+<p>Here is another example:</p>
+
+<div class="code">int main(int argc, char * <span class="annot">NTS</span> * <span class="annot">NT COUNT(argc)</span> argv);</div>
+
+<p>This example shows the Deputy annotations for <tt>main</tt>.  The
+<tt>NTS</tt> annotation applies to the first pointer (the inner <tt>char
+*</tt>), and the <tt>NT</tt> and <tt>COUNT(argc)</tt> annotations apply to
+the second pointer (the outer <tt>char **</tt>).  Overall, this annotation
+says that <tt>argv</tt> is a null-terminated sequence with a minimum
+length of <tt>argc</tt>.  Each element of this sequence is a
+null-terminated string.  (These annotations will be discussed in detail
+below!)</p>
+
+<a name="safe-pointers"/>
+<h4>3.2. Safe Pointers</h4>
+
+<p>The first Deputy annotation that we will introduce is the "safe"
+pointer.  Safe pointers are possibly-null pointers to a single object of
+their base type.  For example:</p>
+
+<div class="code">struct foo * <span class="annot">SAFE</span> p;</div>
+
+<p>This code declares a pointer <tt>p</tt> that is either null or points
+to a single object of type <tt>struct foo</tt>.</p>
+
+<p>Safe pointers are typically used much like Java references: they can be
+passed around and dereferenced, but they are not used in pointer
+arithmetic.  Such pointers are by far the most common kind of pointers in
+C programs.</p>
+
+<p>When you dereference a safe pointer, Deputy will insert a null check
+(or its equivalent).  However, if your code has already checked this
+pointer to ensure that it is non-null, Deputy's optimizer will most likely
+remove the Deputy-inserted null check.  Deputy's will also issue
+compile-time errors for obviously-incorrect code such as <tt>p[1]</tt>.</p>
+
+<p>If you are sure that the pointer is never null, you can add the
+<tt>NONNULL</tt> annotation.  For example:</p>
+
+<div class="code">struct foo * <span class="annot">SAFE NONNULL</span> p;</div>
+
+<p>Since this pointer is annotated as both <tt>SAFE</tt> and
+<tt>NONNULL</tt>, it can typically be dereferenced at zero run-time
+cost.</p>
+
+<a name="count-pointers"/>
+<h4>3.3. Count Pointers</h4>
+
+<p>Of course, many C programs use pointers to point to <em>arrays</em> of
+objects.  Such pointers can be annotated as "count" pointers:</p>
+
+<div class="code">struct foo * <span class="annot">COUNT(5)</span> p;</div>
+
+<p>This annotation says that <tt>p</tt> is either null or it points to an
+array of five valid objects of type <tt>struct foo</tt>.  For the visually
+inclined, the memory layout is as follows, where each blue box represents
+an object of type <tt>struct foo</tt>:</p>
+
+<div align="center">
+<img src="count-5.png"/>
+</div>
+
+<p>Note that the <tt>SAFE</tt> annotation introduced earlier is actually
+equivalent to <tt>COUNT(1)</tt>.  Also note that this annotation can be
+written as <tt>CT</tt> instead of <tt>COUNT</tt> if you prefer terse
+annotations.</p>
+
+<p>In addition to using the count annotation with constants, the count
+annotation can also refer to other variables in the same
+scope or to more complex expressions.  For example:</p>
+
+<div class="code">int n, m;
+struct foo * <span class="annot">COUNT(n * m)</span> p;
+</div>
+
+<p>Here, we've declared that <tt>p</tt> is a pointer to an array of <tt>n
+* m</tt> objects of type <tt>struct foo</tt> (a two-dimensional array,
+perhaps).  Visually, we have the following memory layout:</p>
+
+<div align="center">
+<img src="count-nm.png"/>
+</div>
+
+<p>If we refer to an element <tt>p[i]</tt> of this array, Deputy
+will verify that <tt>p</tt> is non-null and that <tt>0 &lt;= i &lt; n *
+m</tt>.
+
+<p>When count annotations refer to variables, they may refer only to
+variables in the immediately enclosing scope.  For example, annotations on
+local variables may only refer to other local variables, and annotations
+on structure fields may only refer to other structure fields.
+Furthermore, these annotations may not include memory dereferences or
+function calls.  These restrictions allow Deputy to efficiently verify
+that a variable's type annotation is valid for the duration of that
+variable's lifetime.</p>
+
+<p>Finally, note that count annotations (and indeed, all Deputy
+annotations) must be valid throughout the variable's lifetime.  Thus, in
+the previous example, Deputy will prevent you from incrementing <tt>n</tt>
+or <tt>m</tt>, since this change might invalidate the annotation on
+<tt>p</tt>.  Furthermore, <tt>p</tt> cannot be incremented, because then
+<tt>p</tt> would no longer point to an array of <tt>n * m</tt> elements.
+(If you're worried that this sounds too restrictive, bear with me until
+the section on automatic bounds!)</p>
+
+<a name="general-bounded-pointers"/>
+<h4>3.4. General Bounded Pointers</h4>
+
+<p>The most general annotation provided by Deputy is the "bound"
+annotation, which is written as follows:</p>
+
+<div class="code">struct foo * <span class="annot">BOUND(b, e)</span> p;</div>
+
+<p>This annotation says that <tt>p</tt> is either null or points into
+an array of objects of type <tt>struct foo</tt> with bounds <tt>b</tt> and
+<tt>e</tt>.  All of these pointers (<tt>p</tt>, <tt>b</tt>, and
+<tt>e</tt>) must be aligned with respect to the size of <tt>struct
+foo</tt>.  Visually, the memory layout is:</p>
+
+<div align="center">
+<img src="bnd-be.png"/>
+</div>
+
+<p>As with the count annotation, the arguments <tt>b</tt> and <tt>e</tt>
+can actually be expressions that refer to other variables or fields in the
+same scope.  The same restrictions that apply to count pointers apply here
+as well.  As with the count annotation, you can write <tt>BND</tt> as the
+terse form of <tt>BOUND</tt>.</p>
+
+<p>In this annotation, the expressions <tt>b</tt> and <tt>e</tt> can make use of
+the special variable <tt>__this</tt>, which refers to the variable, field,
+or expression to which this type is attached.  So, for example, the
+annotation <tt>BOUND(__this, __this + n)</tt> says that the bounds of the
+associated pointer are the pointer itself and the pointer plus <tt>n</tt>
+elements.  In fact, this is precisely how <tt>COUNT(n)</tt> is
+defined!</p>
+
+<a name="sentinel-pointers"/>
+<h4>3.5. Sentinel Pointers</h4>
+
+<p>One final pointer annotation to be discussed is the sentinel pointer.
+In Deputy, the sentinel annotation, written <tt>SNT</tt>, indicates that a
+pointer is used only for comparisons and not for dereference.  Such
+pointers are useful mainly for indicating the bounds of other pointers.
+They are also useful for C idioms where the program computes the address
+of the end of an array.</p>
+
+<p>In terms of the general bounded pointer, a sentinel pointer is
+equivalent to <tt>BOUND(__this, __this)</tt>--that is, the pointer is both
+its upper and lower bound.</p>
+
+<a name="null-terminated-pointers"/>
+<h4>3.6. Null-Terminated Pointers</h4>
+
+<p>The annotations introduced thus far allow you to specify pointer bounds
+by referring to other nearby variables.  However, bounds for arrays are
+sometimes indicated using null termination instead.</p>
+
+<p>Deputy handles null-termination with an additional annotation,
+<tt>NT</tt>, that can be used <em>in addition to</em> the
+previously-discussed bounds annotations.  In other words, you have the
+option of specifying <tt>NT</tt> in addition to <tt>BOUND</tt> or one of its
+shorthands (<tt>SAFE</tt>, <tt>COUNT</tt>, and <tt>SNT</tt>).</p>
+
+<p>The meaning of this annotation is that the <em>upper</em> bound given
+by the <tt>BOUND</tt> annotation is the beginning of a null-terminated
+sequence.  So, the annotation <tt>NT COUNT(5)</tt> describes an array of
+five elements followed by a null-terminated sequence (or, in other words,
+a null-terminated sequence of at least five elements).  This annotation
+allows the null element to be read but not overwritten with a non-zero
+value.  A sequence with no known bounds (e.g., a standard C string) is
+written as <tt>NT COUNT(0)</tt>, which can be abbreviated as
+<tt>NTS</tt>.</p>
+
+<p>In its most general form, the annotation <tt>NT BOUND(b, e)</tt>
+corresponds to the following memory layout:</p>
+
+<div align="center">
+<img src="bnd-be-nt.png"/>
+</div>
+
+<p>Note that the initial portion of the array is laid out in the same way
+as <tt>BOUND(b, e)</tt>; the only difference is that we have a
+null-terminated sequence (shown as the pink boxes) at the end.</p>
+
+<p>This hybrid design is important in ensuring that bounded sequences and
+null-terminated sequences interact cleanly.  For example, C programs often
+have stack-allocated arrays that have a known size and are
+null-terminated.  If we did not mark it as null-terminated, we would not
+be able to call <tt>strlen()</tt> and its like on this buffer.  If we
+marked it as null-terminated only, then we would not be able to insert
+null elements in this buffer without cutting off access to the remainder
+of the buffer.</p>
+
+<p>Note that it is always legal to cast away the <tt>NT</tt> flag; for
+example, a <tt>NT COUNT(5)</tt> sequence can safely be considered to be a
+<tt>COUNT(5)</tt> sequence, although you lose access to the
+null-terminated portion of the array.  This operation can be performed
+with the <tt>NTDROP(e)</tt> function.</p>
+
+<p>One complication with <tt>NTDROP</tt> is that you lose a lot of bounds
+information.  For example, strings are typically annotated <tt>char *
+NTS</tt>, and calling <tt>NTDROP</tt> on such a value results in a value
+of type <tt>char * COUNT(0)</tt>, which is not very useful.  Thus, we also
+provide <tt>NTEXPAND(e)</tt>, which expands the bounds of the expression
+<tt>e</tt> dynamically.  So, <tt>NTDROP(NTEXPAND(e))</tt> yields a
+non-null-terminated type with the largest legal bounds.</p>
+
+<a name="casts"/>
+<h4>3.7. Casts</h4>
+
+<p>Deputy has stricter checking of type casts than C itself.  First,
+Deputy checks to make sure that the bounds of the type being cast are
+correct.  For example, a <tt>COUNT(5)</tt> pointer could be cast to a
+<tt>COUNT(4)</tt> pointer, but not the other way around.  When necessary,
+Deputy will insert run-time checks to verify that such casts are safe.
+Since all the bounds annotations are special cases of <tt>BOUND</tt>, they
+can all be cast freely from one to the other.</p>
+
+<p>Deputy also ensures that the <tt>NT</tt> flag is either present or
+absent on both sides of the cast.  (In fact, Deputy infers the <tt>NT</tt>
+flag in these situations, as we will discuss in the next section.)  The
+only way to drop the <tt>NT</tt> flag is to use the <tt>NTDROP</tt>
+function discussed above.  The <tt>NT</tt> flag can never be added by a
+cast; it must be present from the point of allocation forward.</p>
+
+<p>Finally, Deputy checks the base types of pointers involved in a cast.
+For example, you are not allowed to blindly cast an <tt>int **</tt> to an
+<tt>int *</tt>, since otherwise you could overwrite a pointer with an
+integer.  Similarly, you are not allowed to cast a non-pointer type to a
+pointer.  However, when casting between pointers to non-pointer data
+(e.g., <tt>int *</tt> to <tt>char *</tt>), Deputy will allow the cast.</p>
+
+<a name="trusted-code"/>
+<h4>3.8. Trusted Code</h4>
+
+<p>If you must use a cast that Deputy doesn't like, you can use the
+<tt>TC(e)</tt> function to perform a trusted cast from an expression
+<tt>e</tt> to some new type.  For example, the following cast will be
+accepted by Deputy:</p>
+
+<div class="code">int * <span class="annot">SAFE</span> * <span class="annot">SAFE</span> pp = ...;
+int * <span class="annot">SAFE</span> p = (int * <span class="annot">SAFE</span>) <span class="op">TC</span>(pp);
+</div>
+
+<p>Alternatively, any pointer can be labelled as trusted by using the
+<tt>TRUSTED</tt> annotations.  Trusted pointers can be cast to any other
+pointer without compile-time or run-time checks.  Similarly, these
+pointers can be incremented or decremented without restriction.  (In fact,
+the <tt>TC</tt> operation is implemented as a cast to a <tt>TRUSTED</tt>
+pointer of the same type.)</p>
+
+<hr/>
+
+<a name="inference"/>
+<h3>4. Inference</h3>
+
+<p>Deputy has several inference features that reduce the number of
+annotations required for type checking.  Most of these features operate
+behind the scenes, but it is important for the programmer to be aware of
+what they do.</p>
+
+<a name="default-annotations"/>
+<h4>4.1. Default Annotations</h4>
+
+<p>Any types that may be visible by code outside the current compilation
+unit are given the default annotation of <tt>SAFE</tt>.  These types
+include the types of global variables, function arguments, function return
+values, structure fields, and the base types of other pointers.  This
+annotation is correct in the vast majority of cases, so it is quite useful
+for the programmer to be able to omit it.</p>
+
+<p>However, it is important to note that this assumption is <em>not</em>
+safe and is provided only for convenience.  For example, imagine that your
+code calls a function <tt>foo(char *p)</tt> in another module.  If this
+function expects a null-terminated string and we assume a <tt>SAFE</tt>
+annotation, then Deputy would allow you to pass a pointer to a single
+character when a string was expected.  Fortunately, such errors will be
+detected when running Deputy on the code for <tt>foo()</tt> itself;
+furthermore, header files for standard libraries should soon be fully
+annotated.  In the near future, we will include an option to warn the
+programmer about such assumptions.</p>
+
+<a name="automatic-bounds"/>
+<h4>4.2. Automatic Bounds</h4>
+
+<p>For the types of local variables and types appearing in casts, Deputy
+can do a bit more to help the programmer.  In these situations, Deputy
+assumes that unannotated types have the annotation <tt>BOUND(__auto,
+__auto)</tt>.  In this context, <tt>__auto</tt> is a special keyword that
+instructs Deputy to generate a new variable to hold and track the
+appropriate bound.  For example, say we have the following
+declaration:</p>
+
+<div class="code">int a[10];
+int * <span class="annot">BOUND(__auto, __auto)</span> p;
+p = a;
+</div>
+
+<p>After preprocessing, this code becomes:</p>
+
+<div class="code">int a[10];
+int * <span class="annot">SNT</span> pb;
+int * <span class="annot">SNT</span> pe;
+int * <span class="annot">BOUND(pb, pe)</span> p;
+pb = a;
+pe = a + 10;
+p = a;
+</div>
+
+<p>Note that we have introduced two new bounds variables to track the
+bounds of <tt>p</tt>, and we updated these bounds variables when
+<tt>p</tt> was updated.</p>
+
+<p>These automatic bounds variables are very useful beyond their ability
+to reduce the annotation burden.  In many cases, programmers wish to
+explicitly introduce new bounds variables when existing code is not
+amenable to annotation.  As mentioned earlier, <tt>COUNT</tt> pointers
+cannot be incremented; however, if you copy a <tt>COUNT</tt> pointer into
+an unannotated pointer, then this unannotated pointer can be incremented,
+since its bounds are stored in two fresh variables.</p>
+
+<a name="nt-inference"/>
+<h4>4.3. NT Inference</h4>
+
+<p>In addition to the above inference, Deputy also infers <tt>NT</tt>
+annotations using somewhat more traditional means.  Essentially, any
+pointer that is casted to/from or assigned to/from an <tt>NT</tt> pointer
+becomes <tt>NT</tt> itself.  Of course, this inference algorithm
+understands the <tt>NTDROP</tt> function and does not propagate
+<tt>NT</tt> across this operation.</p>
+
+<p>This feature reduces the burden of <tt>NT</tt> annotation dramatically,
+but it can also infer unintended <tt>NT</tt> annotations.  In most cases,
+this problem results from a common function like <tt>memset()</tt>.  If an
+<tt>NT</tt> pointer is inadvertendly passed to <tt>memset()</tt> without
+using <tt>NTDROP</tt>, the <tt>NT</tt> flag will be propagated to
+<tt>memset()</tt>'s argument and from there to all other pointers passed
+to <tt>memset()</tt>, most of which are not <tt>NT</tt>.  To solve this
+problem, search for common functions like <tt>memset()</tt> and make sure
+to use <tt>NTDROP</tt> when appropriate.</p>
+
+<hr/>
+
+<a name="union-annotations"/>
+<h3>5. Union Annotations</h3>
+
+<a name="tagged-unions"/>
+<h4>5.1. Tagged Unions</h4>
+
+<p>In addition to pointer bounds errors, unions provide another source of
+unsafety in C programs.  As with pointer bounds, Deputy provides a way to
+annotate common idioms used to ensure the safety of unions.</p>
+
+<p>In Deputy, each union field must be annotated with a predicate
+indicating the condition that must hold when that field of the union is
+currently active.  For example, consider the following annotated C
+code:</p>
+
+<div class="code">struct foo {
+    int tag;
+    union {
+        int n   <span class="annot">WHEN(tag == 1)</span>;
+        int *p  <span class="annot">WHEN(tag == 2)</span>;
+    } u;
+}
+</div>
+
+<p>Without any checking, this union is potentially unsafe, because a
+program could write an aribtary integer to the field <tt>u.n</tt> and then
+read it out as a pointer by reading <tt>u.p</tt>.  The <tt>WHEN</tt>
+annotations indicate that the <tt>n</tt> field can only be accessed when
+<tt>tag</tt> is 1, and the <tt>p</tt> field can only be accessed when
+<tt>tag</tt> is 2.  When changing the tag, the contents of the union must
+be zero, which is assumed to be a valid value for all data types.</p>
+
+<p>There are a few differences between the usage of this annotation and
+the usage of the pointer bounds annotations.  First, if the <tt>WHEN</tt>
+fields refer to variables, they must be variables in the same scope as the
+union, not fields of the union itself.  (In the above example, we refer to
+<tt>tag</tt> as opposed to <tt>n</tt> and <tt>p</tt>.)  Second, these
+annotations are placed on the union fields themselves, not on their
+types--that is, they appear <em>after</em> the field name.  The reason for
+these differences is that the <tt>WHEN</tt> fields are conceptually
+annotations on the union type, not on the fields of the union.</p>
+
+<a name="trusted-unions"/>
+<h4>5.2. Trusted Unions</h4>
+
+<p>As with bounded pointers, unions can be trusted when the tag
+annotations are insufficient.  To do so, simply place the <tt>TRUSTED</tt>
+annotation on the union itself.  For example:</p>
+
+<div class="code">union {
+    int n;
+    int *p;
+} <span class="annot">TRUSTED</span> u;
+</div>
+
+<hr/>
+
+<a name="polymorphism"/>
+<h3>6. Polymorphism</h3>
+
+<p>C programmers typically use <tt>void *</tt> in cases where a number of
+different types may be used.  However, casts to and from this <tt>void
+*</tt> are not checked for safety.  Deputy provides parametric
+polymorphism to handle some of these cases.</p>
+
+<a name="polymorphism-in-functions"/>
+<h4>6.1. Polymorphism in Functions</h4>
+
+<p>Function arguments can be treated as polymorphic.  Instead of writing
+<tt>void *</tt>, use the type <tt>TV(t)</tt>, which stands for "type
+variable named <tt>t</tt>".  Any occurrences of this type that have the
+same name <tt>t</tt> must be the same type for any particular call to this
+function.  For example:</p>
+
+<div class="code">void apply(void (*fn)(<span class="annot">TV(t)</span> data), <span class="annot">TV(t)</span> data);
+void callback_int(int data);
+void callback_ptr(int *data);
+
+int i;
+apply(callback_int, i);   // TV(t) == int
+apply(callback_ptr, &amp;i);  // TV(t) == int *
+</div>
+
+<p>In Deputy, the above code is well-typed.  Note that apply can safely be
+instantiated on two different types, but those types must be used
+consistently for any particular call to <tt>apply</tt>.  Note also that
+you can use several distinct type variables if you give them different
+names (i.e., change <tt>t</tt> to something else).</p>
+
+<p>For practical reasons, Deputy requires that <tt>TV(t)</tt> is only
+instantiated to types that can fit in a machine word, like an integer or
+pointer--basically, anything that you were previously casting to/from a
+<tt>void *</tt>.</p>
+
+<p>Within a polymorphic function, you may not make any assumptions about
+data whose type is a type variable.  All you can do is copy this data to
+other variables with the same type variable type.  The body of
+<tt>apply</tt> would look like this:</p>
+
+<div class="code">void apply(void (*fn)(<span class="annot">TV(t)</span> data), <span class="annot">TV(t)</span> data) {
+    fn(data);
+}
+</div>
+
+<p>This call to <tt>fn</tt> is only legal because <tt>data</tt> and the
+first argument to <tt>fn</tt> both have type <tt>TV(t)</tt>.</p>
+
+<a name="polymorphic-structures"/>
+<h4>6.2. Polymorphic Structures</h4>
+
+<p>You can also use polymorphism within a structure.  In our current
+implementation, structures may only have one type variable, which must be
+named <tt>t</tt>.  (These restrictions will be lifted in a future
+version.)  When using such a structure, you must use the annotation
+<tt>TP</tt> to specify the type on which it is instantiated.  For
+example:</p>
+
+<div class="code">struct list {
+    <span class="annot">TV(t)</span> data;
+    struct list <span class="annot">TP(TV(t))</span> *next;
+};
+
+struct list <span class="annot">TP(int)</span>   *int_list;
+struct list <span class="annot">TP(int *)</span> *ptr_list;
+
+int i;
+int_list-&gt;next-&gt;data = i;   // data has type int
+ptr_list-&gt;next-&gt;data = &amp;i;  // data has type int *
+</div>
+
+<p>Here we declare two lists, one a list of <tt>int</tt> and one a list
+of <tt>int *</tt>, as specified by <tt>TP</tt>.  Within the declaration of
+<tt>struct list</tt>, we say that this type is the type of the
+<tt>data</tt> element, and that the <tt>next</tt> pointer points to
+another list cell that is instantiated on the <em>same</em> type.</p>
+
+<p>Note that the <tt>TP</tt> annotation goes on the structure type itself,
+not the pointer; therefore, it appears before the <tt>*</tt> when
+declaring a pointer to a polymorphic structure.</p>
+
+<hr/>
+
+<a name="special-functions"/>
+<h3>7. Special Functions</h3>
+
+<p>Several standard C functions require special handling.  This section
+discusses the annotations used to identify those functions.</p>
+
+<a name="allocators"/>
+<h4>7.1. Allocators</h4>
+
+<p>Deputy requires the programmer to annotate any functions that behave as
+allocators or deallocators.  These annotations identify arguments that
+hold the size of the requested block as well as arguments that are
+(directly) deallocated by the function.  These annotations allow Deputy to
+make sense of the <tt>void *</tt> types typically used for allocator
+results and deallocator arguments.</p>
+
+<p>The standard allocation functions are annotated as follows:</p>
+
+<div class="code">void * (<span class="annot">DALLOC(size)</span> malloc)(int size);
+void * (<span class="annot">DREALLOC(p, size)</span> realloc)(void *p, int size);
+void (<span class="annot">DFREE(p)</span> free)(void *p);
+</div>
+
+<p>First note that these annotations are placed on the function type using
+the parenthetical syntax shown above.  The <tt>DALLOC</tt> annotation takes
+an expression indicating the size of the allocated block.  (This argument
+is a full expression, so <tt>calloc</tt> can be annotated by multiplying
+the two arguments.)  The <tt>DREALLOC</tt> annotations indicates the name
+of the argument that is freed as well as the size of the reallocated
+block, as above.  The <tt>DFREE</tt> annotation indicates the name of the
+argument that is freed.</p>
+
+<p>Deputy currently does not ensure that the allocated block is zeroed.
+This feature will soon be implemented for <tt>malloc</tt>, but it is
+difficult to implement for <tt>realloc</tt>, since Deputy does not know
+the size of the original allocated block.  Changing the implementations of
+<tt>malloc</tt> and <tt>realloc</tt> may be appropriate in the long
+run.</p>
+
+<a name="memset-and-friends"/>
+<h4>7.2. Memset and Friends</h4>
+
+<p>Functions such as <tt>memset</tt>, <tt>memcmp</tt>, and <tt>memcpy</tt>
+have annotations similar to the allocator annotations above.  Deputy has
+special handling for these functions that allows many different types to
+be used with the <tt>void *</tt> arguments as long as they are used
+appropriately.</p>
+
+<p>These annotations are subject to change soon and are therefore not
+documented here.  Examples can be found in the header files!</p>
+
+<hr/>
+
+<a name="contact-information"/>
+<h3>8. Contact Information</h3>
+
+<p>We welcome any and all feedback regarding Deputy (and Ivy in
+general).  If you have any comments, suggestions, or bug reports,
+please send them to the <a href="mailto:ivy@ivy.cs.berkeley.edu">Ivy
+team</a>.
+
+</div>
+</body>
+</html>

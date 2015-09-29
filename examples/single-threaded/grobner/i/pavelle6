@@ -1,0 +1,11 @@
+12
+u v w x y z a b c d e f
+
+6
+1 u v + 1 u w + 1 u x + 1 u y + 1 u z - 1 a ;
+1 v u + 1 v w + 1 v x + 1 v y + 1 v z - 1 b ;
+1 w u + 1 w v + 1 w x + 1 w y + 1 w z - 1 c ;
+1 x u + 1 x v + 1 x w + 1 x y + 1 x z - 1 d ;
+1 y u + 1 y v + 1 y w + 1 y x + 1 y z - 1 e ;
+1 z u + 1 z v + 1 z w + 1 z x + 1 z y - 1 f ;
+
