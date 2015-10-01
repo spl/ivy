@@ -2,6 +2,6 @@
 # 
 description = "CIL C Intermediate Language"
 requires = "unix,str"
-version = "1.3.6"
+version = "1.3.7"
 archive(byte) = "cil.cma"
 archive(native) = "cil.cmxa" 

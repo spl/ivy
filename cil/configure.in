@@ -31,7 +31,7 @@ AC_PREREQ(2.50)
 # Assign here the CIL version numbers
 CIL_VERSION_MAJOR=1
 CIL_VERSION_MINOR=3
-CIL_VERSION_REV=6
+CIL_VERSION_REV=7
 CIL_VERSION=$CIL_VERSION_MAJOR.$CIL_VERSION_MINOR.$CIL_VERSION_REV
 
 
@@ -122,7 +122,7 @@ ocamlDownloadInstructions="
 reqMaj=3
 reqMin=08
 knownMaj=3
-knownMin=10
+knownMin=11
 AC_MSG_CHECKING(ocaml version is at least $reqMaj.$reqMin)
 if binaryExists ocamlc; then
   # what version?
@@ -210,6 +210,8 @@ AC_MSG_CHECKING([for Perl])
   perlport=`perl -e "print $^O;"`
   case "$perlport" in
     cygwin)
+        ;;
+    msys)
         ;;
     MSWin32) # ActivePerl
         ;;
@@ -352,7 +354,7 @@ AC_MSG_RESULT($UNDERSCORE_NAME)
 
 # checks for header files
 AC_HEADER_STDC
-AC_CHECK_HEADERS(stdlib.h strings.h sys/time.h unistd.h wchar.h)
+AC_CHECK_HEADERS(stdlib.h strings.h sys/time.h unistd.h wchar.h stdbool.h)
 
 # checks for typedefs, structures, and compiler characteristics
 AC_C_CONST
@@ -426,6 +428,16 @@ case "$target" in
     CC=`cygpath -wa "$CC"  | sed -e "s/\\\\\/\\//g"`
     ;;
 
+  # MinGW
+  *86*mingw32*)
+    AC_MSG_RESULT(configuring for MinGW on win32/x86)
+
+    ARCHOS=x86_WIN32
+    MINGW=yes
+
+    CC=`which $CC`
+    ;;
+
   # Solaris
   *sparc*solaris*)
     AC_MSG_RESULT(configuring for SPARC/Solaris)
@@ -467,7 +479,7 @@ AC_MSG_RESULT([done])
 
 
 # Give a space-separated list of features with the defaults
-features="blockinggraph=no zrapp=no"
+features="blockinggraph=no zrapp=no llvm=no"
 
 AC_ARG_WITH(blockinggraph,
     AC_HELP_STRING([--with-blockinggraph],
@@ -475,6 +487,10 @@ AC_ARG_WITH(blockinggraph,
 AC_ARG_WITH(zrapp,
     AC_HELP_STRING([--with-zrapp],
                    [enable the zrapp pretty-printer]))
+
+AC_ARG_WITH(llvm,
+    AC_HELP_STRING([--with-llvm],
+                   [enable the LLVM code generator]))
 
 # Now add any features specified in the command-line
 
@@ -513,6 +529,7 @@ chmod -w Makefile.features
 # names of the variables that get substituted in files; for example,
 # write @ARCHOS@ somewhere in a written file to get it substituted
 AC_SUBST(ARCHOS)
+AC_SUBST(MINGW)
 AC_SUBST(CILHOME)
 AC_SUBST(HAS_MSVC)
 AC_SUBST(DEFAULT_COMPILER)
@@ -543,6 +560,8 @@ CIL_CONFIG_FILES(bin/CilConfig.pm)
 CIL_CONFIG_FILES(doc/index.html)
 CIL_CONFIG_FILES(doc/header.html)
 CIL_CONFIG_FILES(ocamlutil/perfcount.c)
+CIL_CONFIG_FILES(test/llvm/Makefile)
+CIL_CONFIG_FILES(src/machdep-ml.c)
 
 AC_OUTPUT()
 

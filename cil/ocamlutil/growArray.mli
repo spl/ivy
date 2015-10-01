@@ -9,7 +9,7 @@
 (* applicable (and implemented).                                       *)
 (***********************************************************************)
 
-(* $Id: growArray.mli 6537 2005-01-06 15:37:37Z necula $ *)
+(* $Id$ *)
 
 (** Array operations. *)
 

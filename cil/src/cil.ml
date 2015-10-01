@@ -62,6 +62,14 @@ let msvcMode = ref false              (* Whether the pretty printer should
                                        * print output for the MS VC 
                                        * compiler. Default is GCC *)
 
+(* Set this to true to get old-style handling of gcc's extern inline C extension:
+   old-style: the extern inline definition is used until the actual definition is
+     seen (as long as optimization is enabled)
+   new-style: the extern inline definition is used only if there is no actual
+     definition (as long as optimization is enabled)
+   Note that CIL assumes that optimization is always enabled ;-) *)
+let oldstyleExternInline = ref false
+
 let useLogicalOperators = ref false
 
 
@@ -260,6 +268,7 @@ and ikind =
     IChar       (** [char] *)
   | ISChar      (** [signed char] *)
   | IUChar      (** [unsigned char] *)
+  | IBool       (** [_Bool (C99)] *)
   | IInt        (** [int] *)
   | IUInt       (** [unsigned int] *)
   | IShort      (** [short] *)
@@ -369,6 +378,9 @@ and enuminfo = {
                                                       constants. *) 
     mutable eattr: attributes;         (** Attributes *)
     mutable ereferenced: bool;         (** True if used. Initially set to false*)
+    mutable ekind: ikind;
+    (** The integer kind used to represent this enum. Per ANSI-C, this
+      * should always be IInt, but gcc allows other integer kinds *)
 }
 
 (** Information about a defined type *)
@@ -1240,6 +1252,7 @@ let uintType = TInt(IUInt,[])
 let longType = TInt(ILong,[])
 let ulongType = TInt(IULong,[])
 let charType = TInt(IChar, [])
+let boolType = TInt(IBool, [])
 
 let charPtrType = TPtr(charType,[])
 let charConstPtrType = TPtr(TInt(IChar, [Attr("const", [])]),[])
@@ -1268,6 +1281,7 @@ let initCIL_called = ref false
 
 (** Returns true if and only if the given integer type is signed. *)
 let isSigned = function
+  | IBool
   | IUChar
   | IUShort
   | IUInt
@@ -1626,6 +1640,7 @@ let d_ikind () = function
     IChar -> text "char"
   | ISChar -> text "signed char"
   | IUChar -> text "unsigned char"
+  | IBool -> text "_Bool"
   | IInt -> text "int"
   | IUInt -> text "unsigned int"
   | IShort -> text "short"
@@ -1851,7 +1866,7 @@ let rec typeOf (e: exp) : typ =
 
   | Const(CReal (_, fk, _)) -> TFloat(fk, [])
 
-  | Const(CEnum(_, _, ei)) -> TEnum(ei, [])
+  | Const(CEnum(tag, _, ei)) -> typeOf tag
 
   | Lval(lv) -> typeOfLval lv
   | SizeOf _ | SizeOfE _ | SizeOfStr _ -> !typeOfSizeOf
@@ -1913,6 +1928,7 @@ exception SizeOfError of string * typ
 let bytesSizeOfInt (ik: ikind): int = 
   match ik with 
   | IChar | ISChar | IUChar -> 1
+  | IBool -> !M.theMachine.M.sizeof_bool
   | IInt | IUInt -> !M.theMachine.M.sizeof_int
   | IShort | IUShort -> !M.theMachine.M.sizeof_short
   | ILong | IULong -> !M.theMachine.M.sizeof_long
@@ -1927,14 +1943,23 @@ let unsignedVersionOf (ik:ikind): ikind =
   | ILongLong -> IULongLong
   | _ -> ik          
 
-let intKindForSize (s:int) =
-  (* Test the most common sizes first *)
-  if s = 1 then ISChar
-  else if s = !M.theMachine.M.sizeof_int then IInt
-  else if s = !M.theMachine.M.sizeof_long then ILong
-  else if s = !M.theMachine.M.sizeof_short then IShort
-  else if s = !M.theMachine.M.sizeof_longlong then ILongLong
-  else raise Not_found
+let intKindForSize (s:int) (unsigned:bool) : ikind =
+  if unsigned then 
+    (* Test the most common sizes first *)
+    if s = 1 then IUChar
+    else if s = !M.theMachine.M.sizeof_int then IUInt
+    else if s = !M.theMachine.M.sizeof_long then IULong
+    else if s = !M.theMachine.M.sizeof_short then IUShort
+    else if s = !M.theMachine.M.sizeof_longlong then IULongLong
+    else raise Not_found
+  else
+    (* Test the most common sizes first *)
+    if s = 1 then ISChar
+    else if s = !M.theMachine.M.sizeof_int then IInt
+    else if s = !M.theMachine.M.sizeof_long then ILong
+    else if s = !M.theMachine.M.sizeof_short then IShort
+    else if s = !M.theMachine.M.sizeof_longlong then ILongLong
+    else raise Not_found
 
 let floatKindForSize (s:int) = 
   if s = !M.theMachine.M.sizeof_double then FDouble
@@ -1964,7 +1989,7 @@ let truncateInteger64 (k: ikind) (i: int64) : int64 * bool =
          *   e.g. casting the constant 0x80000000 to int makes it
          *        0xffffffff80000000.
          * Suppress the truncation warning in this case.      *)
-        let chopped = Int64.shift_right i (64 - nrBits) in
+        let chopped = Int64.shift_right i nrBits in
         chopped <> Int64.zero
           (* matth: also suppress the warning if we only chop off 1s.
              This is probably due to a negative number being cast to an 
@@ -1974,6 +1999,27 @@ let truncateInteger64 (k: ikind) (i: int64) : int64 * bool =
     in
     i2, truncated
   end
+
+(* True if the integer fits within the kind's range *)
+let fitsInInt (k: ikind) (i: int64) : bool = 
+  let _, truncated = truncateInteger64 k i in
+  not truncated
+
+(* Return the smallest kind that will hold the integer's value.
+   The kind will be unsigned if the 2nd argument is true *)
+let intKindForValue (i: int64) (unsigned: bool) = 
+  if unsigned then
+    if fitsInInt IUChar i then IUChar
+    else if fitsInInt IUShort i then IUShort
+    else if fitsInInt IUInt i then IUInt
+    else if fitsInInt IULong i then IULong
+    else IULongLong
+  else
+    if fitsInInt ISChar i then ISChar
+    else if fitsInInt IShort i then IShort
+    else if fitsInInt IInt i then IInt
+    else if fitsInInt ILong i then ILong
+    else ILongLong
 
 (* Construct an integer constant with possible truncation *)
 let kinteger64 (k: ikind) (i: int64) : exp = 
@@ -1996,6 +2042,7 @@ let convertInts (i1:int64) (ik1:ikind) (i2:int64) (ik2:ikind)
     let rank : ikind -> int = function
         (* these are just unique numbers representing the integer 
            conversion rank. *)
+      | IBool -> 0
       | IChar | ISChar | IUChar -> 1
       | IShort | IUShort -> 2
       | IInt | IUInt -> 3
@@ -2051,11 +2098,12 @@ let rec alignOf_int t =
   let alignOfType () =
     match t with
     | TInt((IChar|ISChar|IUChar), _) -> 1
+    | TInt(IBool, _) -> !M.theMachine.M.alignof_bool
     | TInt((IShort|IUShort), _) -> !M.theMachine.M.alignof_short
     | TInt((IInt|IUInt), _) -> !M.theMachine.M.alignof_int
     | TInt((ILong|IULong), _) -> !M.theMachine.M.alignof_long
     | TInt((ILongLong|IULongLong), _) -> !M.theMachine.M.alignof_longlong
-    | TEnum _ -> !M.theMachine.M.alignof_enum
+    | TEnum(ei, _) -> alignOf_int (TInt(ei.ekind, []))
     | TFloat(FFloat, _) -> !M.theMachine.M.alignof_float 
     | TFloat(FDouble, _) -> !M.theMachine.M.alignof_double
     | TFloat(FLongDouble, _) -> !M.theMachine.M.alignof_longdouble
@@ -2319,7 +2367,7 @@ and bitsSizeOf t =
   | TFloat(FDouble, _) -> 8 * !M.theMachine.M.sizeof_double
   | TFloat(FLongDouble, _) -> 8 * !M.theMachine.M.sizeof_longdouble
   | TFloat _ -> 8 * !M.theMachine.M.sizeof_float
-  | TEnum _ -> 8 * !M.theMachine.M.sizeof_enum
+  | TEnum (ei, _) -> 8 * (bitsSizeOf (TInt(ei.ekind, [])))
   | TPtr _ -> 8 * !M.theMachine.M.sizeof_ptr
   | TBuiltin_va_list _ -> 8 * !M.theMachine.M.sizeof_ptr
   | TNamed (t, _) -> bitsSizeOf t.ttype
@@ -2470,7 +2518,7 @@ and constFold (machdep: bool) (e: exp) : exp =
         let tk = 
           match unrollType tres with
             TInt(ik, _) -> ik
-          | TEnum _ -> IInt
+          | TEnum (ei, _) -> ei.ekind
           | _ -> raise Not_found (* probably a float *)
         in
         match constFold machdep e1 with
@@ -2519,8 +2567,13 @@ and constFold (machdep: bool) (e: exp) : exp =
  
   | CastE (t, e) -> begin
       match constFold machdep e, unrollType t with 
+        (* Casts to _Bool are special: they behave like "!= 0" ISO C99 6.3.1.2 *)
+	Const(CInt64(i,k,_)), TInt(IBool,a)
+        when (dropAttributes ["const"] a) = [] -> 
+	  let v = if i = Int64.zero then Int64.zero else Int64.one in
+	  Const(CInt64(v, IBool, None))
         (* Might truncate silently *)
-        Const(CInt64(i,k,_)), TInt(nk,a)
+      | Const(CInt64(i,k,_)), TInt(nk,a)
           (* It's okay to drop a cast to const.
              If the cast has any other attributes, leave the cast alone. *)
           when (dropAttributes ["const"] a) = [] -> 
@@ -2568,7 +2621,7 @@ and constFoldBinOp (machdep: bool) bop e1 e2 tres =
       let tk = 
         match unrollType tres with
           TInt(ik, _) -> ik
-        | TEnum _ -> IInt
+        | TEnum (ei, _) -> ei.ekind
         | _ -> E.s (bug "constFoldBinOp")
       in
       (* See if the result is unsigned *)
@@ -2736,7 +2789,7 @@ let parseInt (str: string) : exp =
       if acc' < Int64.zero || (* We clearly overflow since base >= 2 
       * *)
       (acc' > Int64.zero && acc' < acc) then 
-        E.s (unimp "Cannot represent on 64 bits the integer %s\n"
+        E.s (unimp "Cannot represent integer %s in 64 bits (signed)\n"
                str)
       else
         toInt base acc' (idx + 1)
@@ -3011,6 +3064,7 @@ let initGccBuiltins () : unit =
   H.add h "__builtin_strchr" (charPtrType, [ charPtrType; intType ], false);
   H.add h "__builtin_strcmp" (intType, [ charConstPtrType; charConstPtrType ], false);
   H.add h "__builtin_strcpy" (charPtrType, [ charPtrType; charConstPtrType ], false);
+  H.add h "__builtin_strlen" (sizeType, [ charConstPtrType ], false);
   H.add h "__builtin_strcspn" (sizeType, [ charConstPtrType; charConstPtrType ], false);
   H.add h "__builtin_strncat" (charPtrType, [ charPtrType; charConstPtrType; sizeType ], false);
   H.add h "__builtin_strncmp" (intType, [ charConstPtrType; charConstPtrType; sizeType ], false);
@@ -3055,6 +3109,12 @@ let initGccBuiltins () : unit =
 					     TBuiltin_va_list [] ],
                                 false);
   end;
+
+  H.add h "__builtin_apply_args" (voidPtrType, [ ], false);
+  let fnPtr = TPtr(TFun (voidType, None, false, []), []) in
+  H.add h "__builtin_apply" (voidPtrType, [fnPtr; voidPtrType; sizeType], false);
+  H.add h "__builtin_va_arg_pack" (intType, [ ], false);
+  H.add h "__builtin_va_arg_pack_len" (intType, [ ], false);
   ()
 
 (** Construct a hash with the builtins *)
@@ -3258,6 +3318,8 @@ class defaultCilPrinterClass : cilPrinter = object (self)
 
     | SizeOf (t) -> 
         text "sizeof(" ++ self#pType None () t ++ chr ')'
+    | SizeOfE (Lval (Var fv, NoOffset)) when fv.vname = "__builtin_va_arg_pack" && (not !printCilAsIs) -> 
+        text "__builtin_va_arg_pack()"
     | SizeOfE (e) ->  
         text "sizeof(" ++ self#pExp () e ++ chr ')'
 
@@ -5743,7 +5805,7 @@ let rec expToAttrParam (e: exp) : attrparam =
   | _ -> raise (NotAnAttrParam e)
 
 (******************** OPTIMIZATIONS *****)
-let rec peepHole1 (* Process one statement and possibly replace it *)
+let rec peepHole1 (* Process one instruction and possibly replace it *)
                   (doone: instr -> instr list option)
                   (* Scan a block and recurse inside nested blocks *)
                   (ss: stmt list) : unit = 
@@ -5777,7 +5839,7 @@ let rec peepHole1 (* Process one statement and possibly replace it *)
       | Return _ | Goto _ | Break _ | Continue _ -> ())
     ss
 
-let rec peepHole2  (* Process two statements and possibly replace them both *)
+let rec peepHole2  (* Process two instructions and possibly replace them both *)
                    (dotwo: instr * instr -> instr list option)
                    (ss: stmt list) : unit = 
   let rec doInstrList (il: instr list) : instr list = 
@@ -5919,7 +5981,10 @@ let mkAddrOf ((b, off) as lval) : exp =
   | _ -> ()); 
   match lval with
     Mem e, NoOffset -> e
-  | b, Index(z, NoOffset) when isZero z -> StartOf (b, NoOffset)(* array *)
+  (* Don't do this: 
+    | b, Index(z, NoOffset) when isZero z -> StartOf (b, NoOffset)
+    &a[0] is not the same as a, e.g. within typeof and sizeof.
+    Code must be able to handle the results without this anyway... *)
   | _ -> AddrOf lval
 
 
@@ -5997,7 +6062,11 @@ let rec mkCastT ~(e: exp) ~(oldt: typ) ~(newt: typ) =
   end else begin
     (* Watch out for constants *)
     match newt, e with 
-      TInt(newik, []), Const(CInt64(i, _, _)) -> kinteger64 newik i
+      (* Casts to _Bool are special: they behave like "!= 0" ISO C99 6.3.1.2 *)
+      TInt(IBool, []), Const(CInt64(i, _, _)) -> 
+	let v = if i = Int64.zero then Int64.zero else Int64.one in
+	Const (CInt64(v, IBool,  None))
+    | TInt(newik, []), Const(CInt64(i, _, _)) -> kinteger64 newik i
     | _ -> CastE(newt,e)
   end
 
@@ -6641,8 +6710,7 @@ let initCIL () =
     (* Find the right ikind given the size *)
     let findIkindSz (unsigned: bool) (sz: int) : ikind =
       try
-	let kind = intKindForSize sz in
-	if unsigned then unsignedVersionOf kind else kind
+	intKindForSize sz unsigned
       with Not_found -> 
         E.s(E.unimp "initCIL: cannot find the right ikind for size %d\n" sz)
     in      

@@ -11,7 +11,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: intmap.mli 9877 2007-11-22 19:20:27Z liblit $ *)
+(* $Id$ *)
 
 (** Specialized to integer keys by George Necula *)
 

@@ -727,7 +727,7 @@ let createEnumInfo (n: string) : enuminfo * bool =
   with Not_found -> begin
     (* Create a enuminfo *)
     let enum = { ename = n; eitems = []; 
-                 eattr = []; ereferenced = false; } in
+                 eattr = []; ereferenced = false; ekind = IInt; } in
     H.add enumInfoNameEnv n enum;
     enum, true
   end
@@ -1145,15 +1145,16 @@ type condExpRes =
   | CENot of condExpRes
 
 (******** CASTS *********)
-let integralPromotion (t : typ) : typ = (* c.f. ISO 6.3.1.1 *)
+let rec integralPromotion (t : typ) : typ = (* c.f. ISO 6.3.1.1 *)
   match unrollType t with
-    TInt ((IShort|IUShort|IChar|ISChar|IUChar), a) -> 
-      if bitsSizeOf t < bitsSizeOf (TInt (IInt, [])) then
+    TInt (IBool, a) -> TInt (IInt, a) (* _Bool can only be 0 or 1, irrespective of its size *)
+  | TInt ((IShort|IUShort|IChar|ISChar|IUChar) as ik, a) -> 
+      if bitsSizeOf t < bitsSizeOf (TInt (IInt, [])) || isSigned ik then
 	TInt(IInt, a)
       else
 	TInt(IUInt, a)
   | TInt _ -> t
-  | TEnum (_, a) -> TInt(IInt, a)
+  | TEnum (ei, a) -> integralPromotion (TInt(ei.ekind, a)) (* gcc packed enums can be < int *)
   | t -> E.s (error "integralPromotion: not expecting %a" d_type t)
   
 
@@ -1409,8 +1410,8 @@ let cabsTypeAddAttributes a0 t =
 			  | "TI" -> 16
 			  | "OI" -> 32
 			  | _ -> raise Not_found in 
-			  let nk = intKindForSize size in
-			  ((if isSigned ik' then nk else unsignedVersionOf nk), a0')
+			  let nk = intKindForSize size (not (isSigned ik')) in
+			  (nk, a0')
 			with Not_found ->
                             (ignore (error "GCC width mode %s applied to unexpected type, or unexpected mode"
                                        mode));
@@ -1686,6 +1687,15 @@ let makeGlobalVarinfo (isadef: bool) (vi: varinfo) : varinfo * bool =
     if debug then
       ignore (E.log "  %s already in the env at loc %a\n" 
                 vi.vname d_loc oldloc);
+
+    (* New-style extern inline handling: the real definition replaces the extern
+       inline one *)
+    if (not !Cil.oldstyleExternInline) && oldvi.vstorage = Extern && oldvi.vinline then begin
+      H.remove alreadyDefined oldvi.vname;
+      theFile := List.map (fun g -> match g with
+	   | GFun (fi, l) when fi.svar == oldvi -> GVarDecl(fi.svar, l)
+	   | x -> x) !theFile
+    end;
     (* It was already defined. We must reuse the varinfo. But clean up the 
      * storage.  *)
     let newstorage = (** See 6.2.2 *)
@@ -2255,6 +2265,7 @@ let rec doSpecList (suggestedAnonName: string) (* This string will be part of
     match sortedspecs with
       [A.Tvoid] -> TVoid []
     | [A.Tchar] -> TInt(IChar, [])
+    | [A.Tbool] -> TInt(IBool, [])
     | [A.Tsigned; A.Tchar] -> TInt(ISChar, [])
     | [A.Tunsigned; A.Tchar] -> TInt(IUChar, [])
 
@@ -2351,11 +2362,39 @@ let rec doSpecList (suggestedAnonName: string) (* This string will be part of
         let a = extraAttrs @ (getTypeAttrs ()) in 
         enum.eattr <- doAttributes a;
         let res = TEnum (enum, []) in
+	let smallest = ref Int64.zero in
+	let largest = ref Int64.zero in
 
-        (* sm: start a scope for the enum tag values, since they *
-        * can refer to earlier tags *)
-        enterScope ();
-        
+	(* Life is fun here. ANSI says: enum constants are ints,
+	   and there's an implementation-dependent underlying integer
+	   type for the enum, which must be capable of holding all the
+	   enum's values.
+	   For MSVC, we follow these rules and assume the enum's 
+	   underlying type is int.
+	   GCC allows enum constants that don't fit in int: the enum
+	   constant's type is the smallest type (but at least int) that 
+	   will hold the value, with a preference for signed types. 
+	   The underlying type EI of the enum is picked as follows:
+	   - let T be the smallest integer type that holds all the enum's
+	     values; T is signed if any enum value is negative, unsigned otherwise
+	   - if the enum is packed or sizeof(T) >= sizeof(int), then EI = T
+	   - otherwise EI = int if T is signed and unsigned int otherwise
+	   Note that these rules make the enum unsigned if possible *)
+
+	let updateEnum (i:int64) : ikind =
+	  if Int64.compare i !smallest < 0 then
+	    smallest := i;
+	  if Int64.compare i !largest > 0 then
+	    largest := i;
+	  if !msvcMode then 
+	    IInt
+	  else
+	    (* This matches gcc's behaviour *)
+	    if fitsInInt IInt i then IInt
+	    else if fitsInInt IUInt i then IUInt
+	    else if fitsInInt ILongLong i then ILongLong
+	    else IULongLong
+	in
         (* as each name,value pair is determined, this is called *)
         let rec processName kname (i: exp) loc rest = begin
           (* add the name to the environment, but with a faked 'typ' field; 
@@ -2379,21 +2418,39 @@ let rec doSpecList (suggestedAnonName: string) (* This string will be part of
           | (kname, e, cloc) :: rest ->
               (* constant-eval 'e' to determine tag value *)
               let e' = getIntConstExp e in
-              let e' = 
+              let e'' = 
                 match isInteger (constFold true e') with 
-                  Some i -> if !lowerConstants then kinteger64 IInt i else e'
+                  Some i -> 
+		    let ik = updateEnum i in 
+		    if !lowerConstants then kinteger64 ik i else e'
                 | _ -> E.s (error "Constant initializer %a not an integer" d_exp e')
               in
-              processName kname e' (convLoc cloc) rest
+              processName kname e'' (convLoc cloc) rest
         in
-        
-        (* sm: now throw away the environment we built for eval'ing the enum 
-        * tags, so we can add to the new one properly  *)
-        exitScope ();
         
         let fields = loop zero eil in
         (* Now set the right set of items *)
         enum.eitems <- List.map (fun (_, x) -> x) fields;
+	(* Pick the enum's kind - see discussion above *)
+	if not !msvcMode then begin
+	  let unsigned = Int64.compare !smallest Int64.zero >= 0 in
+	  let smallKind = intKindForValue !smallest unsigned in
+	  let largeKind = intKindForValue !largest unsigned in
+	  let ekind = 
+	    if (bytesSizeOfInt smallKind) > (bytesSizeOfInt largeKind) then
+	      smallKind
+	    else
+	      largeKind
+	  in
+	  enum.ekind <-
+	    if bytesSizeOfInt ekind < bytesSizeOfInt IInt then
+	      if hasAttribute "packed" enum.eattr then
+		ekind
+	      else
+		if unsigned then IUInt else IInt
+	    else 
+	      ekind
+	end;
         (* Record the enum name in the environment *)
         addLocalToEnv (kindPlusName "enum" n'') (EnvTyp res);
         (* And define the tag *)
@@ -3147,14 +3204,14 @@ and doExp (asconst: bool)   (* This expression is used as a constant *)
               finishExp empty (Lval(var vi)) vi.vtype
           | EnvEnum (tag, typ), _ ->
               if !Cil.lowerConstants then 
-                finishExp empty tag typ
+                finishExp empty tag (typeOf tag)
               else begin
                 let ei = 
                   match unrollType typ with 
                     TEnum(ei, _) -> ei
                   | _ -> assert false
                 in
-                finishExp empty (Const (CEnum(tag, n, ei))) typ
+                finishExp empty (Const (CEnum(tag, n, ei))) (typeOf tag)
               end
 
           | _ -> raise Not_found
@@ -3516,8 +3573,8 @@ and doExp (asconst: bool)   (* This expression is used as a constant *)
         if isIntegralType t then
           let tres = integralPromotion t in
           let e'' = 
-            match e' with
-            | Const(CInt64(i, ik, _)) -> kinteger64 ik (Int64.neg i)
+            match e', tres with
+            | Const(CInt64(i, _, _)), TInt(ik, _) -> kinteger64 ik (Int64.neg i)
             | _ -> UnOp(Neg, makeCastT e' t tres, tres)
           in
           finishExp se e'' tres
@@ -3939,15 +3996,15 @@ and doExp (asconst: bool)   (* This expression is used as a constant *)
         (* Do the arguments. In REVERSE order !!! Both GCC and MSVC do this *)
         let rec loopArgs 
             : (string * typ * attributes) list * A.expression list 
-          -> (chunk * exp list) = function
-            | ([], []) -> (empty, [])
+          -> (chunk list * exp list) = function
+            | ([], []) -> ([], [])
 
             | args, [] -> 
                 if not isSpecialBuiltin then 
                   ignore (warnOpt 
                             "Too few arguments in call to %a."
                             d_exp f');
-		(empty, [])
+		([], [])
 
             | ((_, at, _) :: atypes, a :: args) -> 
                 let (ss, args') = loopArgs (atypes, args) in
@@ -3958,26 +4015,27 @@ and doExp (asconst: bool)   (* This expression is used as a constant *)
                 let (sa, a', att) = force_right_to_left_evaluation
                                       (doExp false a (AExp None)) in
                 let (_, a'') = castTo att at a' in
-                (ss @@ sa, a'' :: args')
+                (sa :: ss, a'' :: args')
                   
             | ([], args) -> (* No more types *)
                 if not isvar && argTypes != None && not isSpecialBuiltin then 
                   (* Do not give a warning for functions without a prototype*)
                   ignore (warnOpt "Too many arguments in call to %a" d_exp f');
                 let rec loop = function
-                    [] -> (empty, [])
+                    [] -> ([], [])
                   | a :: args -> 
                       let (ss, args') = loop args in
                       let (sa, a', at) = force_right_to_left_evaluation 
                           (doExp false a (AExp None)) in
-                      (ss @@ sa, a' :: args')
+                      (sa :: ss, a' :: args')
                 in
                 loop args
         in
-        let (sargs, args') = loopArgs (argTypesList, args) in
+        let (sargsl, args') = loopArgs (argTypesList, args) in
         (* Setup some pointer to the elements of the call. We may change 
          * these below *)
-        let prechunk: chunk ref = ref (sf @@ sargs) in (* comes before *)
+	let sideEffects () = sf @@ (List.fold_left (@@) empty (List.rev sargsl)) in
+        let prechunk: (unit -> chunk) ref = ref sideEffects in (* comes before *)
 
         (* Do we actually have a call, or an expression? *)
         let piscall: bool ref = ref true in 
@@ -4071,7 +4129,7 @@ and doExp (asconst: bool)   (* This expression is used as a constant *)
                   ignore (warn "Invalid call to %s" fv.vname);
             end else if fv.vname = "__builtin_constant_p" then begin
               (* Drop the side-effects *)
-              prechunk := empty;
+              prechunk := (fun _ -> empty);
 
               (* Constant-fold the argument and see if it is a constant *)
               (match !pargs with 
@@ -4087,7 +4145,55 @@ and doExp (asconst: bool)   (* This expression is used as a constant *)
                 end
               | _ -> 
                   ignore (warn "Invalid call to builtin_constant_p"));
-            end
+            end else if fv.vname = "__builtin_va_arg_pack" then begin
+
+              (match !pargs with 
+                [  ] -> begin 
+                  piscall := false; 
+		  pres := SizeOfE !pf;
+		  prestype := !typeOfSizeOf
+                end
+              | _ -> 
+                  ignore (warn "Invalid call to builtin_va_arg_pack"));
+            end else if fv.vname = "__builtin_choose_expr" then begin
+
+              (* Constant-fold the argument and see if it is a constant *)
+              (match !pargs with 
+                [ arg; e1; e2 ] -> begin 
+                  match constFold true arg with 
+                    (Const _) as x -> 
+	              piscall := false; 
+	              if isZero x then begin
+                        (* Keep only 3rd arg side effects *)
+	                prechunk := (fun _ -> sf @@ (List.nth sargsl 2));
+                        pres := e2;
+                        prestype := typeOf e2
+	              end else begin
+                        (* Keep only 2nd arg side effects *)
+	                prechunk := (fun _ -> sf @@ (List.nth sargsl 1));
+                        pres := e1;
+                        prestype := typeOf e1
+	              end
+                  | _ -> ignore (warn "builtin_choose_expr expects a constant first argument")
+                end
+              | _ -> 
+                  ignore (warn "Invalid call to builtin_choose_expr"));
+            end else if fv.vname = "__builtin_types_compatible_p" then begin
+              (* Constant-fold the argument and see if it is a constant *)
+              (match !pargs with 
+                [ SizeOf t1; SizeOf t2 ] -> begin
+                  (* Drop the side-effects *)
+                  prechunk := (fun _ -> empty);
+	          piscall := false; 
+	          if Util.equals (typeSig t1) (typeSig t2) then
+	            pres := integer 1
+	          else
+                    pres := integer 0;
+                  prestype := intType
+                end
+              | _ -> 
+                  ignore (warn "Invalid call to builtin_types_compatible_p"));
+	    end
           end
         | _ -> ());
 
@@ -4095,8 +4201,8 @@ and doExp (asconst: bool)   (* This expression is used as a constant *)
         (* Now we must finish the call *)
         if !piscall then begin 
           let addCall (calldest: lval option) (res: exp) (t: typ) = 
-            prechunk := !prechunk +++
-                (Call(calldest, !pf, !pargs, !currentLoc));
+	    let prev = !prechunk () in
+            prechunk := (fun _ -> prev +++ (Call(calldest, !pf, !pargs, !currentLoc)));
             pres := res;
             prestype := t
           in
@@ -4131,7 +4237,7 @@ and doExp (asconst: bool)   (* This expression is used as a constant *)
           end
         end;
               
-        finishExp !prechunk !pres !prestype
+        finishExp (!prechunk ()) !pres !prestype
 
           
     | A.COMMA el -> 
@@ -5438,7 +5544,7 @@ and doDecl (isglobal: bool) : A.definition -> chunk = function
                * static *)
               let n', sto' =
                 let n' = n ^ "__extinline" in
-                if inl && sto = Extern then begin
+                if inl && sto = Extern && !Cil.oldstyleExternInline then begin
                   n', Static
                 end else begin 
                   (* Maybe this is the body of a previous extern inline. Then 
