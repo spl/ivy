@@ -42,6 +42,8 @@ open Pretty
 let debugFlag  = ref false              (* If set then print debugging info *)
 let verboseFlag = ref false
 
+let colorFlag = ref false
+
 (**** Error reporting ****)  
 exception Error
 let s (d : 'a) = raise Error
@@ -95,16 +97,31 @@ let warnFlag = ref false
 
 let logChannel : out_channel ref = ref stderr
 
+let redEscStr = "\027[31;1m"
+let greenEscStr = "\027[32;1m"
+let yellowEscStr = "\027[33;1m"
+let blueEscStr = "\027[34m"
+let purpleEscStr = "\027[35m"
+let cyanEscStr = "\027[36m"
+let whiteEscStr = "\027[37m"
+let resetEscStr = "\027[m"
 
 let bug (fmt : ('a,unit,doc,unit) format4) : 'a = 
   let f d =  
-    hadErrors := true; contextMessage "Bug" d; 
+    hadErrors := true;
+    if !colorFlag then output_string !logChannel greenEscStr;
+    contextMessage "Bug" d;
+    if !colorFlag then output_string !logChannel resetEscStr;
     flush !logChannel
   in
   Pretty.gprintf f fmt
 
-let error (fmt : ('a,unit,doc,unit) format4) : 'a = 
-  let f d = hadErrors := true; contextMessage "Error" d; 
+let error (fmt : ('a,unit,doc,unit) format4) : 'a =
+  let f d =
+    hadErrors := true;
+    if !colorFlag then output_string !logChannel redEscStr;
+    contextMessage "Error" d;
+    if !colorFlag then output_string !logChannel resetEscStr;
     flush !logChannel
   in
   Pretty.gprintf f fmt
@@ -116,12 +133,21 @@ let unimp (fmt : ('a,unit,doc,unit) format4) : 'a =
   Pretty.gprintf f fmt
 
 let warn (fmt : ('a,unit,doc,unit) format4) : 'a = 
-  let f d = contextMessage "Warning" d; flush !logChannel in
+  let f d =
+    if !colorFlag then output_string !logChannel yellowEscStr;
+    contextMessage "Warning" d;
+    if !colorFlag then output_string !logChannel resetEscStr;
+    flush !logChannel
+  in
   Pretty.gprintf f fmt
 
 let warnOpt (fmt : ('a,unit,doc,unit) format4) : 'a = 
     let f d = 
-      if !warnFlag then contextMessage "Warning" d; 
+      if !warnFlag then begin
+        if !colorFlag then output_string !logChannel yellowEscStr;
+        contextMessage "Warning" d;
+        if !colorFlag then output_string !logChannel resetEscStr;
+      end;
       flush !logChannel in
     Pretty.gprintf f fmt
 

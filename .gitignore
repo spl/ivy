@@ -12,9 +12,12 @@ cil/config.h
 cil/config.log
 cil/config.mk
 cil/config.status
+cil/configure.lineno
+cil/lib/Cilly.pm
 cil/lib/Cilly.pm-e
 cil/obj
 cil/ocamlutil/perfcount.c
+cil/src/machdep-ml.c
 config.log
 config.status
 deputy-lib/Makefile

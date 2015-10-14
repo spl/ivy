@@ -39,10 +39,15 @@ Heapify
 Inthash
 Lexerhack
 Liveness
+Llvm
+Llvmgen
+Llvmssa
+Llvmutils
 Logcalls
 Logwrites
 Longarray
 Machdep
+Machdepenv
 Mergecil
 Olf
 Oneret
