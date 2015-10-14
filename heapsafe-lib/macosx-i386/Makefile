@@ -3,10 +3,10 @@ CFLAGS=-I../../heapsafe-include -g -O3 --param max-inline-insns-single=1000 -DND
 all: setjmp.o _setjmp.o csetjmp.o sigsetjmp.o conccsetjmp.o concsigsetjmp.o
 
 setjmp.o: setjmp.s
-	$(CC) -c -I. setjmp.s
+	$(CC) -c -m32 -I. setjmp.s
 
 _setjmp.o: _setjmp.s
-	$(CC) -c -I. _setjmp.s
+	$(CC) -c -m32 -I. _setjmp.s
 
 csetjmp.o: csetjmp.c
 	$(CC) $(CFLAGS) -D__HS_NOCONCRC__ -c -o csetjmp.o csetjmp.c
