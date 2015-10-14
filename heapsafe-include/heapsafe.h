@@ -215,9 +215,12 @@ void __builtin_hs_clear(void *p);
  * Warnings for memcpy and friends
  * -------------------------------------------------------------------------*/
 
+#ifdef HAVE_STRING_H
 void *memcpy(void *to, const void *from, size_t s) hs_untyped;
 void *memmove(void *to, const void *from, size_t s) hs_untyped;
 void *memset(void *to, int c, size_t s) hs_untyped;
+#endif
+
 void bcopy(const void *from, void *to, size_t s) hs_untyped;
 void bzero(void *to, size_t s) hs_untyped;
 
