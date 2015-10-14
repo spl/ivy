@@ -177,7 +177,7 @@ quicktest:
 	  echo && echo "*** Quicktest was successful" && echo
 
 clean:
-	rm -f $(OBJDIR)/*.* $(DEPENDDIR)/*.* $(PATCH_PP) $(SHARCPATCH_PP)
+	rm -rf $(OBJDIR)/*.* $(DEPENDDIR)/*.* $(PATCH_PP) $(SHARCPATCH_PP)
 	for i in $(SUBDIRS) cil; do make -C $$i clean; done
 
 libclean:
