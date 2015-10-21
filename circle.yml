@@ -1,0 +1,12 @@
+dependencies:
+  override:
+    - sudo apt-get update
+    # Use gcc4.6 because gcc-4.8-multilib does not install.
+    - sudo apt-get install -y gcc-4.6-base gcc-4.6-multilib libc6-dev-i386 ocaml
+    - sudo ln -sf gcc-4.6 /usr/bin/gcc
+test:
+  override:
+    - ./configure --prefix=/usr/local
+    - make
+    - sudo make install
+    - ivycc -help
