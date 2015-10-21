@@ -3,7 +3,9 @@
 *.o
 *.swp
 Makefile
+cil/META
 cil/Makefile
+cil/Makefile.features
 cil/bin/CilConfig.pm
 cil/bin/cilly.bat
 cil/bin/patcher.bat
@@ -17,6 +19,8 @@ cil/lib/Cilly.pm
 cil/lib/Cilly.pm-e
 cil/obj
 cil/ocamlutil/perfcount.c
+cil/src/formatparse.output
+cil/src/frontc/cparser.output
 cil/src/machdep-ml.c
 config.log
 config.status
