@@ -7,7 +7,7 @@ AC_PROG_INSTALL
 
 AC_CANONICAL_SYSTEM
 
-IVYHOME=`pwd`
+IVYHOME=$srcdir
 DEFAULT_CIL_MODE=GNUCC
 IVY_VERSION=1.0
 
@@ -130,9 +130,9 @@ AC_SUBST(USE_SATURN)
 #We can't use AC_CONFIG_SUBDIRS because it doesn't support adding new
 #flags (--with-zrapp):
 # AC_CONFIG_SUBDIRS(cil)
-if test -f cil/configure; then
+if test -f "$srcdir/cil/configure"; then
     AC_MSG_NOTICE(Configuring CIL:);
-    cd cil; ./configure --with-zrapp; cd ..
+    (cd $srcdir/cil; ./configure --with-zrapp)
 else  
     AC_MSG_ERROR(Missing the CIL directory)
 fi
